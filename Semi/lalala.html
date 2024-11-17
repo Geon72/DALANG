@@ -1,0 +1,13 @@
+// 마커 클릭 이벤트를 추가합니다 - seokzzoo
+        (function(marker, placePosition) {
+          kakao.maps.event.addListener(marker, 'click', function() {
+              map.setCenter(placePosition); // 마커 위치를 지도의 중심으로 설정합니다
+              map.setLevel(3); // 지도의 확대 수준을 설정합니다 (숫자가 작을수록 확대됨)
+          });
+        })(marker, placePosition);
+
+// 마커 클릭 이벤트를 추가합니다 - seokzzoo
+kakao.maps.event.addListener(marker, 'click', function() {
+    map.setCenter(position); // 마커의 위치를 지도의 중심으로 설정합니다
+    map.setLevel(3); // 지도의 확대 수준을 설정합니다 (숫자가 작을수록 더 확대됩니다)
+}); 
