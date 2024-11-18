@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>은행 예적금 상품 정보</title>
+</head>
+<body>
+    <h1>은행 예적금 상품 정보</h1>
+
+    {% if error %}
+        <p>오류 발생: {{ error }}</p>
+    {% elif combined_data %}
+        <ul>
+            {% for product, option in combined_data %}
+              <li>
+                <strong>상품명:</strong> {{ product.fin_prdt_nm }}<br>
+                <strong>금리:</strong> {{ option.intr_rate }}<br>
+                <strong>은행명:</strong> {{ product.kor_co_nm }}<br>  <!-- 옵션 데이터의 필드를 출력 -->
+              </li>
+              <hr>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>데이터를 가져올 수 없습니다.</p>
+    {% endif %}
+</body>
+</html>
