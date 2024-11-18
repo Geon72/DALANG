@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Exchange Rate Trends</title>
+</head>
+<body>
+    <h1>Exchange Rate Trends by Currency Unit</h1>
+    {% if graphs %}
+        <div>
+            <h2>USD</h2>
+            <img src="data:image/png;base64,{{ graphs.USD }}" alt="USD Exchange Rate Trend" />
+        </div>
+        <div>
+            <h2>JPY(100)</h2>
+            <img src="data:image/png;base64,{{ graphs.JPY }}" alt="JPY(100) Exchange Rate Trend" />
+        </div>
+        <div>
+            <h2>EUR</h2>
+            <img src="data:image/png;base64,{{ graphs.EUR }}" alt="EUR Exchange Rate Trend" />
+        </div>
+        <div>
+            <h2>CNH</h2>
+            <img src="data:image/png;base64,{{ graphs.CNH }}" alt="CNH Exchange Rate Trend" />
+        </div>
+    {% else %}
+        <p>No data available to display the graphs.</p>
+    {% endif %}
+</body>
+</html>

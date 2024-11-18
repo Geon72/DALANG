@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>환율 데이터</title>
+</head>
+<body>
+    <h1>최근 환율 데이터</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>날짜</th>
+                <th>통화</th>
+                <th>환율</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for rate in exchange_rates %}
+                <tr>
+                    <td>{{ rate.date }}</td>
+                    <td>{{ rate.currency_unit }}</td>
+                    <td>{{ rate.exchange_rate }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
