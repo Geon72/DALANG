@@ -45,7 +45,7 @@ def fetch_exchange_rates():
 
 def exchange_rate_view(request):
     # 데이터를 불러오는 함수를 호출하여 1년치 데이터를 적재
-    # fetch_exchange_rates() # 이미 불러와서 주석처리
+    # fetch_exchange_rates() # 이미 불러와서 주석처리 / 20241118 1638 완료
 
     # 최근 데이터 10개를 가져옵니다.
     exchange_rates = ExchangeRate.objects.all().order_by('-date')[:10]
