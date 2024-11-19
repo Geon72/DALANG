@@ -1,19 +1,17 @@
 <template>
-    <div class="p-4 flex justify-end">
-      <button 
-        @click="handleExport" 
-        class="flex items-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
-      >
-        <DocumentArrowDownIcon class="w-5 h-5 mr-2" />
-        Excel로 출력
-      </button>
-    </div>
+  <div class="p-4 flex justify-end">
+    <button @click="handleExport"
+      class="flex items-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors">
+      <DocumentArrowDownIcon class="w-5 h-5 mr-2" />
+      Excel로 출력
+    </button>
+  </div>
 </template>
-  
+
 <script setup>
 import { DocumentArrowDownIcon } from '@heroicons/vue/24/outline'
 import ExcelJS from 'exceljs'
-  
+
 const props = defineProps({
   data: {
     type: Array,
@@ -28,7 +26,7 @@ const props = defineProps({
     required: true
   }
 })
-  
+
 const handleExport = async () => {
   const workbook = new ExcelJS.Workbook()
   const worksheetName = props.tabType === '정기적금' ? '적금상품비교' : '예금상품비교'

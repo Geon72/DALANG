@@ -4,25 +4,21 @@
       <div class="text-sm text-gray-600">
         검색결과: <span class="font-semibold">{{ products.length }}건</span>
       </div>
-      <RecommendationExcelExport
-        :data="exportData"
-        :headers="exportHeaders"
-        :tabType="currentTab" 
-      />
+      <RecommendationExcelExport :data="exportData" :headers="exportHeaders" :tabType="currentTab" />
     </div>
 
     <table class="min-w-full divide-y divide-gray-200">
       <thead class="bg-gray-50">
         <tr>
-          <th v-for="header in tableHeaders" :key="header" 
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          <th v-for="header in tableHeaders" :key="header"
+            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
             {{ header }}
           </th>
         </tr>
       </thead>
       <tbody class="bg-white divide-y divide-gray-200">
-        <tr v-for="(product, index) in sortedProducts" :key="product.id" 
-            :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
+        <tr v-for="(product, index) in sortedProducts" :key="product.id"
+          :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
           <td class="px-6 py-4">
             <div class="flex items-center">
               <div class="flex-shrink-0 h-10 w-10">
@@ -45,8 +41,7 @@
             <div class="text-xs text-gray-500">{{ product.maxRateCondition }}</div>
           </td>
           <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
-            <button class="text-[#0088CC] hover:text-[#006699] font-medium"
-                    @click="showDetails(product)">
+            <button class="text-[#0088CC] hover:text-[#006699] font-medium" @click="showDetails(product)">
               상세보기
             </button>
           </td>
@@ -77,8 +72,8 @@ const props = defineProps({
 
 const sortedProducts = computed(() => {
   return [...props.products].sort((a, b) => {
-    const compareValue = props.sortOrder === 'asc' 
-      ? a.maxRate - b.maxRate 
+    const compareValue = props.sortOrder === 'asc'
+      ? a.maxRate - b.maxRate
       : b.maxRate - a.maxRate
     return compareValue
   })

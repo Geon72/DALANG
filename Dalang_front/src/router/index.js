@@ -5,6 +5,8 @@ import ProfileView from '@/views/ProfileView.vue'
 import LoginModal from '@/components/LoginModal.vue'
 import RecommendationView from '@/views/RecommendationView.vue'
 import CurrencyExchangeView from '@/views/CurrencyExchangeView.vue'
+import CommunityView from '@/views/CommunityView.vue'
+
 const routes = [
   {
     path: '/',
@@ -35,6 +37,11 @@ const routes = [
     path: '/currency-exchange',
     name: 'currencyExchange',
     component: CurrencyExchangeView
+  },
+  {
+    path: '/community',
+    name: 'community',
+    component: CommunityView
   },
   // 404 페이지 라우트
   {
