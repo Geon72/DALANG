@@ -102,6 +102,7 @@ const navItems = [
   { name: '커뮤니티', route: '/community' },
 ]
 
+// 모달 오픈
 const openLoginWindow = () => {
   const loginWindow = window.open('/login', 'LoginWindow', 'width=500,height=800')
 }
