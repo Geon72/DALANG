@@ -33,7 +33,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'articles',
     'accounts',
-    'deposits',
+    'products',
     'kakaomap',
     'exchange_rate',
     'rest_framework',
