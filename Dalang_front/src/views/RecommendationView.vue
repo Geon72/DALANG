@@ -1,11 +1,10 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <NavigationBar/>
-
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- 상단 탭 네비게이션 -->
       <div class="mb-6">
-        <h2 class="text-3xl font-bold text-[#0088CC] mb-4">예/적금 상품 추천</h2>
+        <h2 class="text-3xl font-bold mb-4">예/적금 상품 추천</h2>
         <div class="border-b border-gray-200">
           <nav class="-mb-px flex space-x-8">
             <a v-for="tab in tabs" :key="tab.id" :href="tab.href" :class="[

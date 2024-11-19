@@ -1,8 +1,8 @@
   <template>
-    <div class="min-h-screen bg-white">
+    <div class="min-h-screen bg-gray">
       <NavigationBar />
-      <HomePageBannerImage/>
-      <main class="container mx-auto px-4 py-8">
+      <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <HomePageBannerImage />
         <HomePageServiceSection :services="services" />
         <HomePageFriendsSection :friends="friends" />
         <HomePageReviewBoard :reviews="reviews" @reportReview="reportReview" @likeReview="likeReview"
@@ -20,8 +20,8 @@ import HomePageFriendsSection from '@/components/HomePageFriendsSection.vue'
 import HomePageReviewBoard from '@/components/HomePageReviewBoard.vue'
 
 const getRandomImages = (count) => {
-    return Array(count).fill().map(() => `https://picsum.photos/200/200?random=${Math.random()}`);
-  };
+  return Array(count).fill().map(() => `https://picsum.photos/200/200?random=${Math.random()}`);
+};
 
 const services = [
   { name: '예/적금추천', description: '형님에게 딱 맞는 조건의 상품 추천', image: getRandomImages(1), route: '/recommendation' },

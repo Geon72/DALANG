@@ -1,6 +1,6 @@
 <template>
-  <div class="banner-wrapperw-full">
-    <div class="container mx-auto">
+  <div class="banner-wrapper w-full">
+    <div class="mx-auto">
     <div class="relative h-96 bg-[#44AAE2] overflow-hidden rounded-lg mb-4">
       <div class="absolute inset-0 bg-black bg-opacity-30"></div>
       <div class="absolute inset-0 flex items-center justify-center">
