@@ -158,6 +158,15 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # 회원가입, 로그인 시 필요!
-# AUTH_USER_MODEL = 'accounts.User'
+AUTH_USER_MODEL = 'accounts.User'
 
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# REST-AUTH 회원가입 기본 Serailizer 재정의
+REST_AUTH = {
+ 'REGISTER_SERIALIZER': 'accounts.serializers.CustomRegisterSerializer',
+ 'USER_DETAILS_SERIALIZER': 'accounts.serializers.CustomUserDetailsSerializer',
+}
+
+# 회원 가입 시 사용하는 allauth.account.adapter.DefaultAccountAdapter를 account/models.py에서 구현한 adapter로 설정
+ACCOUNT_ADAPTER = 'accounts.models.CustomAccountAdapter'
