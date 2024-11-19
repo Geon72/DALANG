@@ -1,39 +1,49 @@
-from rest_framework.response import Response 
-from rest_framework.decorators import api_view
-from rest_framework import status
+from rest_framework import generics, permissions
+from .models import Article, Comment
+from .serializers import ArticleSerializer, CommentSerializer
+from django.core.exceptions import PermissionDenied
 
-# permission Decorators
-from rest_framework.decorators import permission_classes
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+# 게시글 뷰
+class ArticleCreateView(generics.CreateAPIView):
+    queryset = Article.objects.all()
+    serializer_class = ArticleSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-from django.shortcuts import get_object_or_404, get_list_or_404
+class ArticleUpdateView(generics.UpdateAPIView):
+    queryset = Article.objects.all()
+    serializer_class = ArticleSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-from .serializers import ArticleListSerializer, ArticleSerializer
-from .models import Article
+class ArticleDeleteView(generics.DestroyAPIView):
+    queryset = Article.objects.all()
+    serializer_class = ArticleSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
+# 댓글 뷰
+class CommentCreateView(generics.CreateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-@api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
-def article_list(request):
-    if request.method == 'GET':
-        articles = get_list_or_404(Article)
-        serializer = ArticleListSerializer(articles, many=True)
-        return Response(serializer.data)
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
-    elif request.method == 'POST':
-        serializer = ArticleSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            # serializer.save()
-            serializer.save(user=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+class CommentUpdateView(generics.UpdateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
+    def perform_update(self, serializer):
+        if self.request.user != serializer.instance.author:
+            raise PermissionDenied("You do not have permission to edit this comment.")
+        serializer.save()
 
-@api_view(['GET'])
-# @permission_classes([IsAuthenticated]) 이거 없어서 로그인 안해도 그냥 확인할 수 있음
-def article_detail(request, article_pk):
-    article = get_object_or_404(Article, pk=article_pk)
+class CommentDeleteView(generics.DestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-    if request.method == 'GET':
-        serializer = ArticleSerializer(article)
-        print(serializer.data)
-        return Response(serializer.data)
+    def perform_destroy(self, instance):
+        if self.request.user != instance.author:
+            raise PermissionDenied("You do not have permission to delete this comment.")
+        instance.delete()
