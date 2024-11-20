@@ -99,6 +99,109 @@ createApp(App).use(router).mount('#app')
 
 DALANG은 SSAFY 관통프로젝트의 일환으로 개발된 금융상품추천 및 비교 웹 애플리케이션입니다. 주요 기능으로는 은행 찾기, 정기예금/적금 상품 비교, 그리고 사용자 프로필 관리 등이 있습니다. 이 프로젝트는 Django와 Vue.js를 활용하여 구현되었으며, 카카오맵 API를 통합하여 위치 기반 서비스를 제공합니다.
 
+## 시간을 많이 소요한 요소들
+
+### 주요 문제 상황과 해결 과정
+
+1. 카카오맵 API 초기화 문제
+
+**문제 상황:**
+Vue 컴포넌트 생명주기와 카카오맵 API 로딩 타이밍이 맞지 않아 지도 초기화 실패
+
+**해결 과정:**
+- 동적 스크립트 로딩 방식 도입
+- API 로드 완료 후 초기화 로직 실행하도록 변경
+- onMounted 훅 내에서 비동기 함수를 사용하여 API 로딩 대기
+
+```javascript
+onMounted(async () => {
+  await loadKakaoMapScript();
+  initMap();
+});
+```
+
+2. 위치 정보 접근 거부 처리
+
+**문제 상황:**
+사용자가 위치 정보 제공을 거부할 경우 서비스 작동 불가
+
+**해결 과정:**
+- 위치 정보 접근 실패 시 기본 위치(예: 서울시청) 사용 로직 추가
+- 사용자에게 위치 정보 필요성 안내 메시지 표시
+- 수동으로 위치 입력할 수 있는 대체 UI 제공
+
+```javascript
+const getMyLocation = () => {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      successCallback,
+      (error) => {
+        console.error("위치 정보를 가져오는데 실패했습니다:", error);
+        useDefaultLocation();
+        showLocationErrorMessage();
+      }
+    );
+  } else {
+    console.error("Geolocation이 지원되지 않습니다.");
+    useDefaultLocation();
+    showLocationErrorMessage();
+  }
+};
+```
+
+3. 컴포넌트 간 데이터 전달 문제
+
+**문제 상황:**
+지도 컴포넌트에서 검색된 은행 데이터를 목록 컴포넌트로 효과적으로 전달하기 어려움
+
+**해결 과정:**
+- 부모 컴포넌트(FindBankView.vue)에서 상태 관리
+- Props와 Emit을 활용한 데이터 흐름 개선
+- 필요한 경우 Pinia 상태 관리 라이브러리 도입 검토
+
+```vue
+<!-- FindBankView.vue -->
+<template>
+  <FindBankMapComponent @search-results="updateSearchResults" />
+  <FindBankBankList :banks="searchResults" />
+</template>
+
+<script setup>
+import { ref } from 'vue';
+import FindBankMapComponent from './FindBankMapComponent.vue';
+import FindBankBankList from './FindBankBankList.vue';
+
+const searchResults = ref([]);
+
+const updateSearchResults = (results) => {
+  searchResults.value = results;
+};
+</script>
+```
+
+4. 성능 최적화 문제
+
+**문제 상황:**
+많은 수의 은행 마커를 표시할 때 성능 저하 발생
+
+**해결 과정:**
+- 마커 클러스터링 기능 구현
+- 뷰포트 내의 마커만 렌더링하는 최적화 적용
+- 데이터 페이지네이션 구현으로 초기 로딩 데이터 양 감소
+
+```javascript
+const clusterer = new kakao.maps.MarkerClusterer({
+  map: map,
+  averageCenter: true,
+  minLevel: 5
+});
+
+clusterer.addMarkers(markers);
+```
+
+이러한 문제들을 해결하는 과정에서 비동기 프로그래밍, 상태 관리, 성능 최적화 등 다양한 웹 개발 기술을 심도 있게 학습하고 적용할 수 있었습니다. 특히 사용자 경험을 고려한 에러 처리와 대체 UI 제공의 중요성을 깨달았습니다.
+
+
 ## 주요 기능
 
 ### 1. 홈페이지
