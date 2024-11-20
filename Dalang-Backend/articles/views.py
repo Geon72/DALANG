@@ -48,15 +48,35 @@ class ArticleDeleteView(generics.DestroyAPIView):
             self.permission_denied(self.request, message="You do not have permission to delete this article.")
         instance.delete()
 
+# 특정 게시판의 모든 댓글 조회 뷰
+class CommentListView(APIView):
+    def get(self, request, article_pk):
+        comments = Comment.objects.filter(article_id=article_pk)
+        serializer = CommentSerializer(comments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 # 댓글 생성 뷰
 class CommentCreateView(generics.CreateAPIView):
+    # queryset = Comment.objects.all()
+    # serializer_class = CommentSerializer
+    # permission_classes = [permissions.IsAuthenticated]
+
+    # def perform_create(self, serializer):
+    #     article = get_object_or_404(Article, pk=self.kwargs['article_pk'])
+    #     serializer.save(author=self.request.user, article=article)
+
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
-        article = get_object_or_404(Article, pk=self.kwargs['article_pk'])
-        serializer.save(author=self.request.user, article=article)
+        # 게시글을 가져오고 없으면 404 반환
+        article = get_object_or_404(Article, pk=self.kwargs.get('article_pk'))
+        # 작성자와 게시글을 설정하여 저장
+        serializer.save(
+            author=self.request.user,
+            article=article
+        )
 
 # 댓글 상세 뷰
 class CommentDetailView(generics.RetrieveAPIView):

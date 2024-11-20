@@ -45,12 +45,51 @@ def fetch_exchange_rates():
 
 def exchange_rate_view(request):
     # 데이터를 불러오는 함수를 호출하여 1년치 데이터를 적재
-    fetch_exchange_rates() # 이미 불러와서 주석처리 / 20241118 1638 완료
+    # fetch_exchange_rates() # 이미 불러와서 주석처리 / 20241120 2050 완료
 
     # 최근 데이터 10개를 가져옵니다.
     exchange_rates = ExchangeRate.objects.all().order_by('-date')[:10]
 
     return render(request, 'exchange_rate/exchange_rate.html', {'exchange_rates': exchange_rates})
+
+
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status, generics
+from django.shortcuts import get_object_or_404
+from .models import ExchangeRate
+from .serializers import ExchangeRateSerializer
+
+# 전체 환율 데이터를 반환하는 뷰
+class ExchangeRateListView(generics.ListAPIView):
+    queryset = ExchangeRate.objects.all()
+    serializer_class = ExchangeRateSerializer
+
+# 특정 날짜와 통화 단위에 해당하는 환율 데이터를 반환하는 뷰
+class ExchangeRateDetailView(APIView):
+    
+    def get(self, request, *args, **kwargs):
+        date = self.request.query_params.get('date')
+        currency_unit = self.request.query_params.get('currency_unit')
+
+        if not date or not currency_unit:
+            return Response(
+                {"error": "Both 'date' and 'currency_unit' query parameters are required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # 데이터 조회
+        exchange_rate = get_object_or_404(
+            ExchangeRate, 
+            date=date, 
+            currency_unit=currency_unit
+        )
+
+        # 데이터 직렬화 및 반환
+        serializer = ExchangeRateSerializer(exchange_rate)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 
 # Django에서 1년치 국가별 환율 추이 꺾은선 그래프로 표현
