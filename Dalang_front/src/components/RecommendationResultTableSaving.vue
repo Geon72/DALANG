@@ -4,11 +4,7 @@
       <div class="text-sm text-gray-600">
         검색결과: <span class="font-semibold">{{ products.length }}건</span>
       </div>
-      <RecommendationExcelExport
-        :data="exportData"
-        :headers="exportHeaders"
-        :tabType="currentTab" 
-      />
+      <RecommendationExcelExport :data="exportData" :headers="exportHeaders" :tabType="currentTab" />
     </div>
 
     <table class="min-w-full divide-y divide-gray-200">
@@ -35,8 +31,8 @@
         </tr>
       </thead>
       <tbody class="bg-white divide-y divide-gray-200">
-        <tr v-for="(product, index) in sortedProducts" :key="product.id" 
-            :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
+        <tr v-for="(product, index) in sortedProducts" :key="product.id"
+          :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
           <td class="px-6 py-4">
             <div class="flex items-center">
               <div class="flex-shrink-0 h-10 w-10">
@@ -46,8 +42,10 @@
                 <div class="text-sm font-medium text-gray-900">{{ product.bankName }}</div>
                 <div class="flex space-x-1">
                   <span v-if="product.isOnline" class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">재</span>
-                  <span v-if="product.isSpecial" class="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded">소</span>
-                  <span v-if="product.isConfirmed" class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded">확</span>
+                  <span v-if="product.isSpecial"
+                    class="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded">소</span>
+                  <span v-if="product.isConfirmed"
+                    class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded">확</span>
                 </div>
               </div>
             </div>
@@ -62,8 +60,7 @@
             <div class="text-sm text-gray-900">{{ product.maxRate }}%</div>
           </td>
           <td class="px-6 py-4 whitespace-nowrap text-sm">
-            <button class="text-[#0088CC] hover:text-[#006699] font-medium"
-                    @click="showDetails(product)">
+            <button class="text-[#0088CC] hover:text-[#006699] font-medium" @click="showDetails(product)">
               보기
             </button>
           </td>
@@ -93,8 +90,8 @@ const props = defineProps({
 
 const sortedProducts = computed(() => {
   return [...props.products].sort((a, b) => {
-    const compareValue = props.sortOrder === 'asc' 
-      ? a.maxRate - b.maxRate 
+    const compareValue = props.sortOrder === 'asc'
+      ? a.maxRate - b.maxRate
       : b.maxRate - a.maxRate
     return compareValue
   })

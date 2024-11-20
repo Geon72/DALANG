@@ -7,7 +7,7 @@ from .models import ExchangeRate
 def fetch_exchange_rates():
     # 한국수출입은행 OPEN API URL
     url = "https://www.koreaexim.go.kr/site/program/financial/exchangeJSON"
-    api_key = "tC9hldIB6d15wr5JziOWECrFBmR6GZJb"  # 발급받은 API 키를 입력하세요.
+    api_key = "tRC7RzqBa0ttDTcmKoU8G0cxd4vZxahD"  # 발급받은 API 키를 입력하세요.
 
     # 오늘 날짜를 기준으로 1년 전까지의 날짜를 생성
     end_date = datetime.now()
@@ -45,7 +45,7 @@ def fetch_exchange_rates():
 
 def exchange_rate_view(request):
     # 데이터를 불러오는 함수를 호출하여 1년치 데이터를 적재
-    # fetch_exchange_rates() # 이미 불러와서 주석처리 / 20241118 1638 완료
+    fetch_exchange_rates() # 이미 불러와서 주석처리 / 20241118 1638 완료
 
     # 최근 데이터 10개를 가져옵니다.
     exchange_rates = ExchangeRate.objects.all().order_by('-date')[:10]

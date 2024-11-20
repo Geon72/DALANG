@@ -67,7 +67,7 @@ const handleProfileItemClick = (item) => {
     alert('로그인하세요')
     window.location.href = '/login'
   } else {
-    switch(item) {
+    switch (item) {
       case 'profile':
         console.log('Navigate to profile page')
         break
@@ -111,7 +111,8 @@ onUnmounted(() => {
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   width: 100%;
   min-height: 100vh;
 }

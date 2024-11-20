@@ -34,7 +34,40 @@
     * join_member : 가입 대상
     * etc_note : 기타 사항
     * created_at : 생성 날짜
-  * 추후 금융감독원 정기적금 API를 활용하여 적금 상품도 서버에 저장 해야 함!!!(20241119 예정)
+  * 추후 금융감독원 정기적금 API를 활용하여 적금 상품도 서버에 저장 해야 함!!!(~~20241119 예정~~ 20241119완료!)
 
 * db.sqlite3는 유지해야 하기 때문에 .gitignore에서 sql관련 파일명 주석처리 완료!
 * 파일을 수정하다 예상치 못하게 파일을 지워 프로젝트가 구동되지 않을 수 있으니 하나의 기능이 구현 완료 되면 GIT에 저장하며 관리하는 것이 좋을 것 같다!!!
+
+## 20241119 TUE
+* 로그인 기능 구현
+  * User 모델
+    * username : 유저네임(Front에서 ID)
+    * age : 나이
+    * gender : 성별 - Gender must be 1 (남성) or 2 (여성)
+    * salary : 연봉
+    * wealth : 자산
+    * tendency : 투자성향 - Tendency must be between 1 (초고위험) and 5 (초저위험)
+  * Serializer 개념 완벽 이해 -> .py to .json for Client
+    * Serializer -> '직렬화'뿐만 아니라 '역직렬화'의 개념도 포함
+      * CustomRegisterSerializer 참고!
+    * PJT10번 PDF파일 참고!
+  * 회원가입, 로그인, 로그아웃 기능은 JS로 구현!(익숙했다..) / 회원정보 수정(20241120 예정)
+
+* 게시판 기능 구현(미완) -> hashtag 아이디어 포함
+  * Article 모델 -> User 모델과 어떻게 연결해야 할까...
+    * title : 게시글 제목
+    * content : 게시글 내용
+    * hashtag1 : 해쉬태그1
+    * hashtag2 : 해쉬태그2
+    * hashtag2 : 해쉬태그2
+    * created_at : 게시글 생성 시점
+    * updated_at : 게시글 수정 시점
+  * Comment 모델
+    * article : Foreign Key of Article
+    * author : 댓글 작성자
+    * content : 댓글 내용
+    * created_at : 게시글 생성 시점
+  * 게시글, 댓글 CRUD는 Django로 구현 예정(20241120)
+
+  ## `git add .`는 꼭!!! 주기적으로 하자^^ -> 실수로 파일 영구삭제해서 복구하느라 많이 힘들었다 ㅎㅎ

@@ -5,6 +5,10 @@ import ProfileView from '@/views/ProfileView.vue'
 import LoginModal from '@/components/LoginModal.vue'
 import RecommendationView from '@/views/RecommendationView.vue'
 import CurrencyExchangeView from '@/views/CurrencyExchangeView.vue'
+import CommunityView from '@/views/CommunityView.vue'
+// 회원가입 연습
+import RegisterView from '@/components/RegisterView.vue'
+
 const routes = [
   {
     path: '/',
@@ -36,11 +40,22 @@ const routes = [
     name: 'currencyExchange',
     component: CurrencyExchangeView
   },
+  {
+    path: '/community',
+    name: 'community',
+    component: CommunityView
+  },
   // 404 페이지 라우트
   {
     path: '/:pathMatch(.*)*',
     name: 'notFound',
     component: HomePageView // 또는 별도의 404 페이지 컴포넌트
+  },
+  // 회원가입 연습
+  {
+    path: '/register',
+    name: 'Register',
+    component: RegisterView // 또는 별도의 404 페이지 컴포넌트
   }
 ]
 

@@ -1,35 +1,31 @@
 <template>
   <div class="border-t border-[#DBDBDB] mb-4">
     <div class="flex justify-center py-4">
-      <button 
-        @click="activeTab = 'photos'"
-        :class="[
-          'mx-4 text-xs font-semibold uppercase flex items-center transition-colors',
-          activeTab === 'photos' ? 'text-[#262626]' : 'text-[#8E8E8E]'
-        ]"
-      >
+      <button @click="activeTab = 'photos'" :class="[
+        'mx-4 text-xs font-semibold uppercase flex items-center transition-colors',
+        activeTab === 'photos' ? 'text-[#262626]' : 'text-[#8E8E8E]'
+      ]">
         <GridIcon class="w-4 h-4 mr-1" /> 사진
       </button>
-      <button 
-        @click="activeTab = 'posts'"
-        :class="[
-          'mx-4 text-xs font-semibold uppercase flex items-center transition-colors',
-          activeTab === 'posts' ? 'text-[#262626]' : 'text-[#8E8E8E]'
-        ]"
-      >
+      <button @click="activeTab = 'posts'" :class="[
+        'mx-4 text-xs font-semibold uppercase flex items-center transition-colors',
+        activeTab === 'posts' ? 'text-[#262626]' : 'text-[#8E8E8E]'
+      ]">
         <FileTextIcon class="w-4 h-4 mr-1" /> 글
       </button>
     </div>
   </div>
-  
+
   <div v-if="activeTab === 'photos'" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
     <div v-for="photo in photos" :key="photo.id" class="aspect-square">
-      <img :src="`https://picsum.photos/seed/${photo.id}/300/300`" :alt="'Photo ' + photo.id" class="w-full h-full object-cover">
+      <img :src="`https://picsum.photos/seed/${photo.id}/300/300`" :alt="'Photo ' + photo.id"
+        class="w-full h-full object-cover">
     </div>
   </div>
 
   <div v-else class="space-y-6">
-    <div v-for="post in posts" :key="post.id" class="border-b border-[#DBDBDB] pb-6 last:border-b-0 hover:bg-gray-50 transition-colors">
+    <div v-for="post in posts" :key="post.id"
+      class="border-b border-[#DBDBDB] pb-6 last:border-b-0 hover:bg-gray-50 transition-colors">
       <h3 class="text-lg font-semibold mb-2">{{ post.title }}</h3>
       <p class="text-gray-600 mb-2 line-clamp-3">{{ post.content }}</p>
       <div class="flex justify-between items-center text-sm text-gray-500">
