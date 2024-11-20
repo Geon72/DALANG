@@ -15,27 +15,23 @@
         </div>
       </div>
 
-      <!-- Exchange Rate Type -->
-      <div class="flex items-center space-x-2">
-        <input type="radio" checked class="text-[#0066CC]">
-        <span>고시환율적용</span>
+      <!-- Foreign Currency Selection -->
+      <div class="flex items-center space-x-4">
+        <span class="font-semibold text-gray-600">외화 종류</span>
+        <label class="flex items-center space-x-2" v-for="currency in availableCurrencies" :key="currency">
+          <input type="radio" v-model="selectedCurrency" :value="currency" class="text-[#0066CC]">
+          <span>{{ currency }}</span>
+        </label>
       </div>
 
-      <!-- Date and Time Selection -->
-      <div class="grid grid-cols-2 gap-4">
-        <div class="relative">
-          <input type="text" v-model="exchangeDate" readonly class="w-full pl-10 pr-3 py-2 border rounded-md">
-          <CalendarIcon class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-        </div>
-        <select v-model="exchangeTime" class="w-full border rounded-md">
-          <option value="current">고시시간(회차)</option>
-        </select>
+      <!-- Date Selection -->
+      <div class="relative">
+        <input type="date" v-model="exchangeDate" class="w-full pl-3 pr-3 py-2 border rounded-md">
       </div>
 
       <!-- Amount Input -->
-      <div class="space-y-4">
+      <div>
         <input type="number" v-model="amount" class="w-full border rounded-md px-3 py-2" placeholder="금액을 입력하세요">
-        <CurrencyExchangeQuickAmountButton @select="handleQuickAmount" />
       </div>
 
       <!-- Calculate Button -->
@@ -45,9 +41,9 @@
       </button>
 
       <!-- Result Display -->
-      <div class="text-right text-xl font-semibold">
-        <span>{{ calculatedAmount }}</span>
-        <span class="ml-2 text-gray-600">{{ selectedCurrency }}</span>
+      <div v-if="calculatedAmount" class="text-right text-xl font-semibold mt-4">
+        <span>{{ formattedResult }}</span>
+        <span class="ml-2 text-gray-600">{{ baseCurrency === 'foreign' ? 'KRW' : selectedCurrency }}</span>
       </div>
     </div>
   </div>
@@ -55,25 +51,76 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { CalendarIcon } from 'lucide-vue-next'
-import CurrencyExchangeQuickAmountButton from './CurrencyExchangeQuickAmountButton.vue'
+import axios from 'axios'
 
-const props = defineProps(['selectedCurrency'])
-const emit = defineEmits(['update:amount'])
-
-const baseCurrency = ref('foreign')
-const exchangeDate = ref('2024.11.18')
-const exchangeTime = ref('current')
+const baseCurrency = ref('foreign') // '외화기준' 또는 '원화기준'
+const exchangeDate = ref('')
+const selectedCurrency = ref('')
 const amount = ref('')
-const calculatedAmount = ref(0)
+const calculatedAmount = ref(null)
+const availableCurrencies = ref(['USD', 'EUR', 'JPY', 'CNH']) // 외화 종류
+const exchangeRate = ref(0) // API로부터 가져올 환율 값
 
-const handleQuickAmount = (value) => {
-  amount.value = String(value)
-  emit('update:amount', amount.value)
+// 데이터를 가져오는 함수
+const fetchExchangeRate = async () => {
+  try {
+    const response = await axios.get('http://127.0.0.1:8000/exchange_rate/detail/', {
+      params: {
+        date: exchangeDate.value,
+        currency_unit: selectedCurrency.value
+      }
+    })
+    exchangeRate.value = response.data.exchange_rate || 0
+    console.log('Fetched exchange rate:', exchangeRate.value)
+  } catch (error) {
+    console.error('환율 데이터를 가져오는 중 오류 발생:', error)
+    exchangeRate.value = 0
+  }
 }
 
-const calculate = () => {
-  // Implement calculation logic here
-  calculatedAmount.value = parseFloat(amount.value) || 0
+// 계산된 결과 포맷
+const formattedResult = computed(() => {
+  if (calculatedAmount.value !== null) {
+    // selectedCurrency가 비어있거나 null일 때 기본값 처리
+    const currency = selectedCurrency.value || '외화'
+    return baseCurrency.value === 'foreign'
+      ? `${calculatedAmount.value.toLocaleString()}`
+      : `${calculatedAmount.value.toFixed(2)}`
+  }
+  return ''
+})
+
+
+// 계산 함수
+const calculate = async () => {
+  if (!exchangeDate.value || !selectedCurrency.value || !amount.value) {
+    alert('날짜, 외화 종류, 금액을 모두 입력하세요.')
+    return
+  }
+
+  // 환율 데이터 가져오기
+  await fetchExchangeRate()
+
+  // 외화기준 또는 원화기준에 따른 계산
+  if (baseCurrency.value === 'foreign') {
+    // 외화 기준: 입력값(외화) * 환율 = 원화
+    calculatedAmount.value = parseFloat(amount.value) * exchangeRate.value
+  } else if (baseCurrency.value === 'won') {
+    // 원화 기준: 입력값(원화) / 환율 = 외화
+    calculatedAmount.value = parseFloat(amount.value) / exchangeRate.value
+  }
 }
 </script>
+
+<style scoped>
+/* 기본 스타일 */
+.bg-white {
+  background-color: #fff;
+}
+.border {
+  border-color: #ddd;
+}
+.w-full {
+  width: 100%;
+}
+</style>

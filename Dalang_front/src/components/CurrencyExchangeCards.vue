@@ -5,62 +5,62 @@
       여행갈 여행지의 환율을 알아봐요
     </h2>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-      <div v-for="currency in currencies" :key="currency.code"
+    <div v-if="currencies.length" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+      <!-- 그리드 간격 조정: gap-6 -> gap-8 -->
+      <div v-for="(currency, i) in currencies" :key="i"
         class="currency-card bg-white rounded-xl shadow-lg p-6 transform transition-all duration-300 hover:-translate-y-1">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center">
-            <img :src="currency.flag" :alt="currency.name" class="w-8 h-8 mr-3">
-            <h3 class="text-lg font-semibold text-[#115583]">{{ currency.name }}</h3>
+            <h3 class="text-lg font-semibold text-[#115583]">{{ currency.currency_unit }}</h3>
           </div>
-          <span class="text-sm font-medium text-[#44AAE2]">{{ currency.code }}</span>
+          <span class="text-sm font-medium text-[#44AAE2]">{{ currency.currency_unit }}</span>
         </div>
         <div class="text-center">
           <p class="text-3xl font-bold bg-gradient-to-r from-[#115583] to-[#44AAE2] bg-clip-text text-transparent mb-2">
-            {{ currency.rate }}
+            {{ currency.exchange_rate.toFixed(2) }}
           </p>
-          <span class="text-sm text-gray-500 font-medium">1,000 KRW 기준</span>
+          <span class="text-sm text-gray-500 font-medium">{{ currency.date }}</span>
         </div>
       </div>
+    </div>
+    <div v-else class="text-center">
+      <p class="text-gray-500">환율 데이터를 불러오는 중입니다...</p>
     </div>
   </section>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
 
-const currencies = ref([
-  {
-    name: '미국 외화',
-    code: 'USD',
-    rate: '0.75',
-    flag: '/flags/us.svg'
-  },
-  {
-    name: '일본 외화',
-    code: 'JPY',
-    rate: '112.50',
-    flag: '/flags/jp.svg'
-  },
-  {
-    name: '베트남 외화',
-    code: 'VND',
-    rate: '18,150',
-    flag: '/flags/vn.svg'
-  },
-  {
-    name: '중국 외화',
-    code: 'CNY',
-    rate: '5.40',
-    flag: '/flags/cn.svg'
-  },
-  {
-    name: '유럽 외화',
-    code: 'EUR',
-    rate: '0.69',
-    flag: '/flags/eu.svg'
+const currencies = ref([]) // 최신 데이터만 담을 상태
+const API_URL = 'http://127.0.0.1:8000'
+
+const fetchExchangeRates = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/exchange_rate/`) // Django API 호출
+    const allData = response.data // API에서 가져온 전체 데이터
+
+    // 가장 최신 날짜 데이터를 추출
+    const latestData = {}
+    allData.forEach((item) => {
+      const unit = item.currency_unit
+      if (
+        !latestData[unit] ||
+        new Date(item.date) > new Date(latestData[unit].date)
+      ) {
+        latestData[unit] = item // 최신 데이터로 갱신
+      }
+    })
+
+    currencies.value = Object.values(latestData) // 최신 데이터만 상태에 저장
+  } catch (error) {
+    console.error('환율 데이터를 가져오는 중 오류 발생:', error)
   }
-])
+}
+
+// 컴포넌트가 로드될 때 데이터 불러오기
+onMounted(fetchExchangeRates)
 </script>
 
 <style scoped>
@@ -90,8 +90,16 @@ const currencies = ref([
       rgba(255, 255, 255, 0.85) 100%);
 }
 
-/* Responsive adjustments */
+/* Responsive grid adjustments */
+.grid {
+  gap: 2rem; /* 기본 간격 */
+}
+
 @media (max-width: 640px) {
+  .grid {
+    gap: 1.5rem; /* 작은 화면에서 간격 축소 */
+  }
+
   .currency-card {
     padding: 1rem;
   }
