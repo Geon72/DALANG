@@ -164,16 +164,22 @@ const calculate = () => {
   }
 }
 
-// 외화 선택 변경 시 차트 업데이트
+// 외화 선택 변경 시 초기화 및 차트 업데이트
 watch(selectedCurrency, (newCurrency) => {
   if (newCurrency) {
-    processChartData(newCurrency) // 선택된 외화에 대한 데이터를 차트로 처리
+    // 계산기 초기화
+    amount.value = '' // 금액 입력 초기화
+    calculatedAmount.value = null // 결과 초기화
+
+    // 차트 데이터 처리
+    processChartData(newCurrency)
   }
 })
 
 // 컴포넌트 로드 시 환율 데이터 가져오기
 onMounted(fetchExchangeRates)
 </script>
+
 
 <style scoped>
 /* 기본 스타일 */
