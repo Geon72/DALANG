@@ -4,9 +4,7 @@
       <div class="flex justify-between items-center py-4">
         <div class="flex items-center">
           <a href="/" class="flex items-center no-hover-effect">
-            <img
-              :src="DALANG_LOGO"
-              alt="DALANG Logo" class="h-10 w-auto mr-4">
+            <img :src="DALANG_LOGO" alt="DALANG Logo" class="h-10 w-auto mr-4">
             <span class="text-[#115583] font-bold text-3xl">DALANG</span>
           </a>
         </div>
@@ -23,26 +21,35 @@
               <SearchIcon />
             </button>
             <div v-show="showSearch" @mouseenter="showSearch = true" @mouseleave="hideSearchIfNotFocused"
-              class="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg py-1 z-10 ">
+              class="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg py-1 z-10">
               <input ref="searchInput" type="text" placeholder="검색어를 입력하세요"
                 class="w-full p-2 border-b focus:outline-none focus:border-[#44AAE2]" @focus="showSearch = true"
                 @blur="hideSearchIfNotFocused">
             </div>
           </div>
-          <div class="relative">
+          <!-- 프로필 메뉴는 로그인 상태일 때만 표시 -->
+          <div v-if="store.isLogin" class="relative">
             <button @click="toggleProfileMenu" class="profile-button text-[#4A524D] hover:text-[#44AAE2]">
               <UserIcon />
             </button>
             <div v-if="isProfileMenuOpen"
               class="profile-menu absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
-              <a href="/profile"
-                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">내 프로필</a>
-              <a href="/settings"
-                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">설정</a>
+              <a href="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">내 프로필</a>
+              <a href="/user/edit" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">설정</a>
             </div>
           </div>
-          <button @click="handleAuthClick" class="text-[#4A524D] hover:text-[#44AAE2] font-bold">
-            {{ isLoggedIn ? '로그아웃' : '로그인' }}
+          <!-- 로그인/회원가입 또는 로그아웃 버튼 -->
+          <div v-if="!store.isLogin" class="flex space-x-2">
+            <button @click="openLoginWindow" class="text-[#4A524D] hover:text-[#44AAE2] font-bold">
+              로그인
+            </button>
+            <button @click="openRegisterWindow" class="text-[#4A524D] hover:text-[#44AAE2] font-bold">
+              회원가입
+            </button>
+          </div>
+          <!-- 로그아웃 버튼 -->
+          <button v-else @click="handleLogout" class="text-[#4A524D] hover:text-[#44AAE2] font-bold">
+            로그아웃
           </button>
           <button @click="toggleMenu" class="lg:hidden">
             <MenuIcon class="text-[#115583]" />
@@ -51,6 +58,7 @@
       </div>
     </div>
   </nav>
+
   <!-- Mobile menu -->
   <div v-if="isMenuOpen" class="lg:hidden bg-white shadow-md">
     <div class="container mx-auto px-4 py-2">
@@ -63,13 +71,15 @@
 </template>
 
 <script setup>
+// Vue와 Pinia 가져오기
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useCounterStore } from '@/stores/counter'
 import { SearchIcon, UserIcon, MenuIcon } from 'lucide-vue-next'
 import DALANG_LOGO from '@/assets/DALANG_LOGO.png'
 
+const store = useCounterStore() // Pinia 스토어 사용!!
 const isMenuOpen = ref(false)
 const isProfileMenuOpen = ref(false)
-const isLoggedIn = ref(false)
 const showSearch = ref(false)
 const searchInput = ref(null)
 
@@ -102,35 +112,20 @@ const navItems = [
   { name: '커뮤니티', route: '/community' },
 ]
 
-// 모달 오픈
+// 로그인 창 열기 함수
 const openLoginWindow = () => {
   const loginWindow = window.open('/login', 'LoginWindow', 'width=500,height=800')
 }
 
-const handleAuthClick = () => {
-  if (isLoggedIn.value) {
-    isLoggedIn.value = false
-    console.log('Logged out')
-  } else {
-    openLoginWindow()
-  }
+// 회원가입 창 열기 함수
+const openRegisterWindow = () => {
+  const registerWindow = window.open('/register', 'RegisterWindow', 'width=500,height=800')
 }
 
-const handleOutsideClick = (event) => {
-  const profileMenu = document.querySelector('.profile-menu')
-  const profileButton = document.querySelector('.profile-button')
-  if (isProfileMenuOpen.value && profileMenu && !profileMenu.contains(event.target) && !profileButton.contains(event.target)) {
-    closeProfileMenu()
-  }
+// 로그아웃 처리 함수
+const handleLogout = () => {
+  store.logOut() // Pinia의 token 값을 null로 설정!!
 }
-
-onMounted(() => {
-  document.addEventListener('click', handleOutsideClick)
-})
-
-onUnmounted(() => {
-  document.removeEventListener('click', handleOutsideClick)
-})
 </script>
 
 <style scoped>

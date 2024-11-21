@@ -6,6 +6,10 @@ import LoginModal from '@/components/LoginModal.vue'
 import RecommendationView from '@/views/RecommendationView.vue'
 import CurrencyExchangeView from '@/views/CurrencyExchangeView.vue'
 import CommunityView from '@/views/CommunityView.vue'
+import PachinkoView from '@/views/PachinkoView.vue';
+import CookieClickerView from '@/views/CookieClickerView.vue';
+
+
 // 회원가입 연습
 import RegisterView from '@/components/RegisterView.vue'
 
@@ -56,7 +60,18 @@ const routes = [
     path: '/register',
     name: 'Register',
     component: RegisterView // 또는 별도의 404 페이지 컴포넌트
-  }
+  },
+  // 파칭코
+  {
+    path: '/pachinko',
+    name: 'pachinko',
+    component: PachinkoView, // Pachinko View 등록
+  },
+  {
+    path: '/cookieClicker',
+    name: 'cookieClicker',
+    component: CookieClickerView, // Pachinko View 등록
+  },
 ]
 
 const router = createRouter({

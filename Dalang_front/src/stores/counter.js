@@ -12,15 +12,9 @@ export const useCounterStore = defineStore('counter', () => {
   // 로그인 기능
   const articles = ref([])
   const API_URL = 'http://127.0.0.1:8000'
-  const token = ref(null)
+  const token = ref(localStorage.getItem('authToken') || null)
 
-  const isLogin = computed(() => {
-    if (token.value === null) {
-      return false
-    } else {
-      return true
-    }
-  })
+  const isLogin = computed(() => !!token.value) // token이 존재하면 true, 없으면 false
 
   // DRF로 전체 게시글 요청을 보내고 응답을 받아 articles에 저장하는 함수
   const getArticles = function () {
@@ -42,7 +36,7 @@ export const useCounterStore = defineStore('counter', () => {
   }
 
   // 회원가입 요청 액션
-  const signUp = function(payload) {
+  const signUp = function (payload) {
     // const username = payload.username
     // const password1 = payload.password
     // const password2 = payload.password2
@@ -67,9 +61,9 @@ export const useCounterStore = defineStore('counter', () => {
         console.log(err)
       })
   }
-  
+
   // 로그인 요청 액션
-  const logIn = function(payload) {
+  const logIn = function (payload) {
     // 구조 분해 할당
     const { username, password } = payload
 
@@ -90,6 +84,11 @@ export const useCounterStore = defineStore('counter', () => {
         console.log(err)
       })
   }
+  const logOut = () => {
+    token.value = null // 토큰 제거
+    localStorage.removeItem('authToken') // 로컬 스토리지에서도 제거
+    console.log('로그아웃 완료') // 디버깅용 로그
+  }
 
-  return { count, doubleCount, increment, articles, API_URL, getArticles, signUp, logIn, token, isLogin }
+  return { count, doubleCount, increment, logOut, articles, API_URL, getArticles, signUp, logIn, token, isLogin }
 })

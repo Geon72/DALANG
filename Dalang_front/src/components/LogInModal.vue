@@ -11,9 +11,9 @@
         <div class="rounded-md shadow-sm -space-y-px">
           <div>
             <label for="user-id" class="sr-only">ID</label>
-              <input id="user-id" name="id" type="text" autocomplete="off" required
-                class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-[#44AAE2] focus:border-[#44AAE2] focus:z-10 sm:text-sm"
-                placeholder="ID" v-model.trim="id">
+            <input id="user-id" name="id" type="text" autocomplete="off" required
+              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-[#44AAE2] focus:border-[#44AAE2] focus:z-10 sm:text-sm"
+              placeholder="ID" v-model.trim="id">
           </div>
           <div class="relative">
             <label for="password" class="sr-only">Password</label>
@@ -60,31 +60,15 @@
           </div>
           <div class="relative flex justify-center text-sm">
             <span class="px-2 bg-white text-gray-500">
-              Or continue with
             </span>
-          </div>
-        </div>
-
-        <div class="mt-6 grid grid-cols-2 gap-3">
-          <div>
-            <a href="#"
-              class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-[#FEE500] text-sm font-medium text-[#000000] hover:bg-[#FEE500]/90 transition duration-150 ease-in-out">
-              Kakao
-            </a>
-          </div>
-          <div>
-            <a href="#"
-              class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition duration-150 ease-in-out">
-              Google
-            </a>
           </div>
         </div>
       </div>
 
       <p class="mt-2 text-center text-sm text-gray-600">
-        Don't have an account?
+        계정이 없나요?
         <a @click.prevent="goToRegister" class="font-medium text-[#44AAE2] hover:text-[#115583]" href="#">
-          Sign up
+          회원가입
         </a>
       </p>
     </div>
@@ -96,48 +80,55 @@ import axios from 'axios'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-const id = ref('')
-const password = ref('')
-const showPassword = ref(false)
-const rememberMe = ref(false)
-const isLoading = ref(false)
-const API_URL = 'http://127.0.0.1:8000'
+// 형님!! 여기는 로그인에 필요한 모든 반응형 변수들을 선언하는 부분입니다!!!
+const id = ref('')                // 사용자 아이디 저장
+const password = ref('')          // 비밀번호 저장
+const showPassword = ref(false)   // 비밀번호 보이기/숨기기 토글용
+const rememberMe = ref(false)     // "날 기억해줘" 체크박스 상태
+const isLoading = ref(false)      // 로그인 진행 중인지 표시
+const API_URL = 'http://127.0.0.1:8000'  // 백엔드 서버 주소
 
-const router = useRouter()
+const router = useRouter()  // 라우터 설정!! 페이지 이동할 때 쓸거에요!!!
 
+// 비밀번호 보이기/숨기기 토글하는 함수입니다!! 
 const togglePassword = () => {
   showPassword.value = !showPassword.value
 }
 
+// 형님!! 여기가 진짜 핵심입니다!! 로그인 처리하는 함수에요!!!
 const handleSubmit = async () => {
-  isLoading.value = true
+  isLoading.value = true  // 로딩 시작!!
   try {
-    // Make an API call to your backend for authentication
+    // DRF 서버로 로그인 요청 보내기
     const response = await axios.post(`${API_URL}/accounts/login/`, {
       username: id.value,
       password: password.value
     })
 
-    // Handle successful login
+    // 로그인 성공하면 처리하는 부분
     console.log('Login successful', response.data)
     alert('로그인 성공!')
-    // 현재 모달 창 닫기!
+
+    // 받은 토큰을 로컬 스토리지에 저장!! 이거 중요합니다!!!
+    localStorage.setItem('authToken', response.data.key)
+
+    if (window.opener) {
+      window.opener.location.reload()  // 부모 창 새로고침
+    }
+
+    // 로그인 창(모달) 닫기
     window.close()
-
-    // You can save tokens or handle redirection here
-    // Example: localStorage.setItem('token', response.data.token)
-
   } catch (error) {
-    // Handle login error
+    // 로그인 실패하면 에러 처리
     console.error('Login error', error.response || error)
     alert('로그인 실패! 사용자 이름 또는 비밀번호를 확인해 주세요.')
   } finally {
-    isLoading.value = false
+    isLoading.value = false  // 로딩 끝!!
   }
 }
 
+// 회원가입 페이지로 이동하는 함수입니다!!
 const goToRegister = () => {
   router.push('/register')
-  console.log('fuck')
 }
 </script>
