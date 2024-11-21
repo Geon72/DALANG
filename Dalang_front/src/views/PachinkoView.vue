@@ -74,7 +74,7 @@ const startGame = () => {
             if (slot.offset <= -60 * alphabet.length) {
                 slot.offset = 0;
             }
-        }, 500 + index * 50);
+        }, 500 + index * 25);
     });
     startBackgroundEffect(); // 배경 색상 변화 시작
 };

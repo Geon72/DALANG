@@ -15,6 +15,8 @@
     "@fortawesome/free-solid-svg-icons": "^6.7.0",
     "@fortawesome/vue-fontawesome": "^3.0.8",
     "@heroicons/vue": "^2.1.5",
+    "@splidejs/splide": "^4.1.4",
+    "@splidejs/vue-splide": "^0.6.12",
     "axios": "^1.7.7",
     "chart.js": "^4.4.6",
     "exceljs": "^4.4.0",

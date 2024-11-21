@@ -83,7 +83,7 @@ const investments = ref({
     count: 0,
     return: 0.1,
     cost: 100,
-    costMultiplier: 1.1,
+    costMultiplier: 10,
   },
   portfolio: {
     name: '투자 포트폴리오',
@@ -91,7 +91,7 @@ const investments = ref({
     count: 0,
     return: 1,
     cost: 1000,
-    costMultiplier: 1.15,
+    costMultiplier: 20,
   },
   realEstate: {
     name: '부동산',
@@ -99,7 +99,7 @@ const investments = ref({
     count: 0,
     return: 10,
     cost: 10000,
-    costMultiplier: 1.2,
+    costMultiplier: 40,
   },
   business: {
     name: '사업 벤처',
@@ -107,7 +107,7 @@ const investments = ref({
     count: 0,
     return: 100,
     cost: 100000,
-    costMultiplier: 1.25,
+    costMultiplier: 100,
   },
 });
 

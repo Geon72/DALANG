@@ -8,6 +8,7 @@ import CurrencyExchangeView from '@/views/CurrencyExchangeView.vue'
 import CommunityView from '@/views/CommunityView.vue'
 import PachinkoView from '@/views/PachinkoView.vue';
 import CookieClickerView from '@/views/CookieClickerView.vue';
+import PersonalRecommendationView from '@/views/PersonalRecommendationView.vue';
 
 
 // 회원가입 연습
@@ -71,6 +72,11 @@ const routes = [
     path: '/cookieClicker',
     name: 'cookieClicker',
     component: CookieClickerView, // Pachinko View 등록
+  },
+  {
+    path: '/personal-recommendation',
+    name: 'personalrecommendation',
+    component: PersonalRecommendationView, // Pachinko View 등록
   },
 ]
 

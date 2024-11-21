@@ -23,7 +23,7 @@
                 :style="{ color: slide.color }" :aria-label="'Go to ' + slide.buttonText">
                 {{ slide.buttonText }}
               </button>
-              <button v-else
+              <button v-else-if="slide.buttonText === 'Learn More!'" @click="openPersonalRecommendationView"
                 class="bg-white font-bold py-3 px-6 sm:py-4 sm:px-8 lg:py-5 lg:px-10 rounded-full text-lg sm:text-xl lg:text-2xl shadow-xl transform transition-transform hover:scale-105 hover:bg-opacity-95"
                 :style="{ color: slide.color }" :aria-label="'Go to ' + slide.buttonText">
                 {{ slide.buttonText }}
@@ -46,9 +46,9 @@ const router = useRouter();
 
 // 슬라이드 데이터
 const slides = [
-  { color: '#44AAE2', buttonText: 'Click!', title: 'Discover the Future' },
+  { color: '#44AAE2', buttonText: 'Click!', title: '쿠키클릭커' },
   { color: '#E24444', buttonText: 'Explore!', title: 'DALANG 미니게임' },
-  { color: '#44E250', buttonText: 'Learn More!', title: 'Grow with Us' },
+  { color: '#44E250', buttonText: 'Learn More!', title: '당신만을 위한 금융상품추천' },
 ];
 
 // Splide 옵션
@@ -69,6 +69,9 @@ const openPachinkoView = () => {
 };
 const openCookieClickerView = () => {
   const newWindow = window.open('/cookieClicker', '_blank', 'width=800,height=600');
+};
+const openPersonalRecommendationView = () => {
+  const newWindow = window.open('/personal-recommendation', '_blank', 'width=800,height=600');
 };
 </script>
 
