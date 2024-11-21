@@ -41,27 +41,39 @@
         <span class="ml-2 text-gray-600">{{ baseCurrency === 'foreign' ? 'KRW' : selectedCurrency }}</span>
       </div>
     </div>
+
+    <!-- Exchange Rate Trend Chart -->
+    <div v-if="chartData" class="mt-8">
+      <h2 class="text-xl font-semibold mb-4 text-center">{{ selectedCurrency }} 1년 치 환율 변동 추이</h2>
+      <!-- LineChart 컴포넌트를 사용하여 차트를 렌더링 -->
+      <LineChart :chart-data="chartData" :key="selectedCurrency" />
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import axios from 'axios'
+import LineChart from './LineChart.vue' // Chart.js 기반 라인 차트 컴포넌트
 
 const API_URL = 'http://127.0.0.1:8000'
 
+// 반응형 데이터
 const baseCurrency = ref('foreign') // '외화기준' 또는 '원화기준'
-const selectedCurrency = ref('') // 선택한 외화
-const amount = ref('') // 입력된 금액
+const selectedCurrency = ref('') // 선택된 외화
+const amount = ref('') // 사용자가 입력한 금액
 const calculatedAmount = ref(null) // 계산 결과
 const currencies = ref([]) // 최신 환율 데이터를 저장
 const exchangeRate = ref(0) // 현재 선택된 환율
+const chartData = ref(null) // 선택된 외화의 1년 치 환율 데이터
+let allData = [] // 모든 환율 데이터를 저장
 
-// Django 서버에서 최신 환율 데이터를 가져오는 함수
-const fetchLatestExchangeRates = async () => {
+// Django 서버에서 환율 데이터를 가져오는 함수
+const fetchExchangeRates = async () => {
   try {
     const response = await axios.get(`${API_URL}/exchange_rate/`)
     const data = response.data
+    allData = data // 모든 환율 데이터를 저장
 
     // 최신 날짜의 'USD', 'EUR', 'JPY(100)', 'CNH'만 필터링
     const priorityOrder = ['USD', 'EUR', 'JPY(100)', 'CNH']
@@ -91,12 +103,36 @@ const fetchLatestExchangeRates = async () => {
     if (currencies.value.length > 0) {
       selectedCurrency.value = currencies.value[0].code
     }
+
+    // 초기 차트 데이터 설정
+    processChartData(selectedCurrency.value)
   } catch (error) {
     console.error('환율 데이터를 가져오는 중 오류 발생:', error)
   }
 }
 
-// 계산된 결과 포맷
+// 차트 데이터 처리 함수
+const processChartData = (currencyCode) => {
+  if (!currencyCode) return
+
+  // 선택된 외화의 1년 치 데이터 필터링
+  const filteredData = allData.filter(item => item.currency_unit === currencyCode)
+  chartData.value = {
+    labels: filteredData.map(item => item.date), // 날짜 배열
+    datasets: [
+      {
+        label: `${currencyCode} 환율`,
+        data: filteredData.map(item => item.exchange_rate), // 환율 데이터 배열
+        borderColor: '#0066CC', // 라인 색상
+        backgroundColor: 'rgba(0, 102, 204, 0.2)', // 라인 아래 채우기 색상
+        fill: true, // 채우기 여부
+        tension: 0.1, // 곡선의 부드러움
+      },
+    ],
+  }
+}
+
+// 계산된 결과를 포맷
 const formattedResult = computed(() => {
   if (calculatedAmount.value !== null) {
     return calculatedAmount.value.toLocaleString(undefined, { minimumFractionDigits: 2 })
@@ -122,27 +158,22 @@ const calculate = () => {
 
   // 외화기준 또는 원화기준에 따른 계산
   if (baseCurrency.value === 'foreign') {
-    // 외화 기준: 입력값(외화) * 환율 = 원화
     calculatedAmount.value = parseFloat(amount.value) * exchangeRate.value
   } else if (baseCurrency.value === 'won') {
-    // 원화 기준: 입력값(원화) / 환율 = 외화
     calculatedAmount.value = parseFloat(amount.value) / exchangeRate.value
   }
 }
 
-// 계산기 초기화 함수
-const resetCalculator = () => {
-  amount.value = ''
-  calculatedAmount.value = null
-}
+// 외화 선택 변경 시 차트 업데이트
+watch(selectedCurrency, (newCurrency) => {
+  if (newCurrency) {
+    processChartData(newCurrency) // 선택된 외화에 대한 데이터를 차트로 처리
+  }
+})
 
-// baseCurrency 또는 selectedCurrency 변경 시 초기화
-watch([baseCurrency, selectedCurrency], resetCalculator)
-
-// 컴포넌트 로드 시 최신 환율 데이터 가져오기
-onMounted(fetchLatestExchangeRates)
+// 컴포넌트 로드 시 환율 데이터 가져오기
+onMounted(fetchExchangeRates)
 </script>
-
 
 <style scoped>
 /* 기본 스타일 */
