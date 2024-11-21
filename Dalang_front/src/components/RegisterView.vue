@@ -87,6 +87,63 @@
           </select>
         </div>
 
+        <div class="form-group">
+          <label for="marital_status">결혼 여부 (0: 미혼, 1: 기혼)</label>
+          <select id="marital_status" v-model="marital_status" required>
+            <option value="0">미혼</option>
+            <option value="1">기혼</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="num_of_dependents">부양가족 수</label>
+          <input
+            id="num_of_dependents"
+            type="number"
+            v-model="num_of_dependents"
+            min="0"
+            placeholder="부양가족 수"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="employment_status">고용 상태 (0: 실업, 1: 고용)</label>
+          <select id="employment_status" v-model="employment_status" required>
+            <option value="0">실업</option>
+            <option value="1">고용</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="credit_score">신용 점수</label>
+          <input
+            id="credit_score"
+            type="number"
+            v-model="credit_score"
+            min="300"
+            max="850"
+            placeholder="신용 점수 (300-850)"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="monthly_expense">월평균 지출</label>
+          <input
+            id="monthly_expense"
+            type="number"
+            v-model="monthly_expense"
+            placeholder="월평균 지출"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="investment_experience">투자 경험 여부 (0: 없음, 1: 있음)</label>
+          <select id="investment_experience" v-model="investment_experience" required>
+            <option value="0">없음</option>
+            <option value="1">있음</option>
+          </select>
+        </div>
+
         <button type="submit">회원가입</button>
       </form>
     </div>
@@ -102,7 +159,6 @@ const API_URL = 'http://127.0.0.1:8000';
 export default {
   name: 'RegisterComponent',
   setup() {
-    // 반응형 변수 선언
     const isModalOpen = ref(true);
     const username = ref('');
     const password1 = ref('');
@@ -112,14 +168,18 @@ export default {
     const salary = ref(-1);
     const wealth = ref(-1);
     const tendency = ref(1);
+    const marital_status = ref(0);
+    const num_of_dependents = ref(0);
+    const employment_status = ref(0);
+    const credit_score = ref(300);
+    const monthly_expense = ref(0);
+    const investment_experience = ref(0);
 
-    // 회원가입 메서드
-    const register = function() {
+    const register = function () {
       sendRegistrationRequest()
         .then(() => {
           alert('회원가입이 완료되었습니다!');
           isModalOpen.value = false;
-          // 현재 모달 창 닫기!
           window.close()
         })
         .catch((error) => {
@@ -128,8 +188,7 @@ export default {
         });
     };
 
-    // 회원가입 요청 메서드
-    const sendRegistrationRequest = async function() {
+    const sendRegistrationRequest = async function () {
       const form = {
         username: username.value,
         password1: password1.value,
@@ -139,12 +198,17 @@ export default {
         salary: salary.value,
         wealth: wealth.value,
         tendency: tendency.value,
+        marital_status: marital_status.value,
+        num_of_dependents: num_of_dependents.value,
+        employment_status: employment_status.value,
+        credit_score: credit_score.value,
+        monthly_expense: monthly_expense.value,
+        investment_experience: investment_experience.value,
       };
       const response = await axios.post(`${API_URL}/accounts/signup/`, form);
       console.log('Registration successful:', response.data);
     };
 
-    // 반환 객체
     return {
       isModalOpen,
       username,
@@ -155,6 +219,12 @@ export default {
       salary,
       wealth,
       tendency,
+      marital_status,
+      num_of_dependents,
+      employment_status,
+      credit_score,
+      monthly_expense,
+      investment_experience,
       register,
     };
   },
@@ -176,6 +246,8 @@ export default {
 
 .register-container {
   max-width: 400px;
+  max-height: 80vh; /* 최대 높이 제한 */
+  overflow-y: auto; /* 스크롤바 활성화 */
   margin: 0 auto;
   padding: 20px;
   border: 1px solid #ddd;

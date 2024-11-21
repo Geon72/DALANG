@@ -14,7 +14,7 @@ def fetch_exchange_rates():
     start_date = end_date - timedelta(days=365)
 
     current_date = start_date
-    target_currencies = ["USD", "JPY(100)", "EUR", "CNH"]
+    target_currencies = ["USD", "JPY(100)", "EUR", "CNH", "AUD", "BHD", "CAD", "CHF", "GBP", "AED"] # 달러, 엔화, 유로, 위안화, 호주 달러, 바레인 디나르, 캐나다 달러, 스위스 프랑, 영국 파운드, 아랍에미리트 디르함
 
     while current_date <= end_date:
         search_date = current_date.strftime("%Y%m%d")
@@ -45,7 +45,7 @@ def fetch_exchange_rates():
 
 def exchange_rate_view(request):
     # 데이터를 불러오는 함수를 호출하여 1년치 데이터를 적재
-    # fetch_exchange_rates() # 이미 불러와서 주석처리 / 20241120 2050 완료
+    fetch_exchange_rates() # 이미 불러와서 주석처리 / 20241120 2050 완료
 
     # 최근 데이터 10개를 가져옵니다.
     exchange_rates = ExchangeRate.objects.all().order_by('-date')[:10]

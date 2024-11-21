@@ -18,15 +18,10 @@
       <!-- Foreign Currency Selection -->
       <div class="flex items-center space-x-4">
         <span class="font-semibold text-gray-600">외화 종류</span>
-        <label class="flex items-center space-x-2" v-for="currency in availableCurrencies" :key="currency">
-          <input type="radio" v-model="selectedCurrency" :value="currency" class="text-[#0066CC]">
-          <span>{{ currency }}</span>
+        <label class="flex items-center space-x-2" v-for="currency in currencies" :key="currency.code">
+          <input type="radio" v-model="selectedCurrency" :value="currency.code" class="text-[#0066CC]">
+          <span>{{ currency.code }}</span>
         </label>
-      </div>
-
-      <!-- Date Selection -->
-      <div class="relative">
-        <input type="date" v-model="exchangeDate" class="w-full pl-3 pr-3 py-2 border rounded-md">
       </div>
 
       <!-- Amount Input -->
@@ -50,56 +45,80 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import axios from 'axios'
 
-const baseCurrency = ref('foreign') // '외화기준' 또는 '원화기준'
-const exchangeDate = ref('')
-const selectedCurrency = ref('')
-const amount = ref('')
-const calculatedAmount = ref(null)
-const availableCurrencies = ref(['USD', 'EUR', 'JPY', 'CNH']) // 외화 종류
-const exchangeRate = ref(0) // API로부터 가져올 환율 값
+const API_URL = 'http://127.0.0.1:8000'
 
-// 데이터를 가져오는 함수
-const fetchExchangeRate = async () => {
+const baseCurrency = ref('foreign') // '외화기준' 또는 '원화기준'
+const selectedCurrency = ref('') // 선택한 외화
+const amount = ref('') // 입력된 금액
+const calculatedAmount = ref(null) // 계산 결과
+const currencies = ref([]) // 최신 환율 데이터를 저장
+const exchangeRate = ref(0) // 현재 선택된 환율
+
+// Django 서버에서 최신 환율 데이터를 가져오는 함수
+const fetchLatestExchangeRates = async () => {
   try {
-    const response = await axios.get('http://127.0.0.1:8000/exchange_rate/detail/', {
-      params: {
-        date: exchangeDate.value,
-        currency_unit: selectedCurrency.value
+    const response = await axios.get(`${API_URL}/exchange_rate/`)
+    const data = response.data
+
+    // 최신 날짜의 'USD', 'EUR', 'JPY(100)', 'CNH'만 필터링
+    const priorityOrder = ['USD', 'EUR', 'JPY(100)', 'CNH']
+    const latestData = {}
+
+    data.forEach((item) => {
+      const unit = item.currency_unit
+      const itemDate = new Date(item.date)
+
+      if (
+        priorityOrder.includes(unit) &&
+        (!latestData[unit] || itemDate > new Date(latestData[unit].date))
+      ) {
+        latestData[unit] = {
+          code: unit,
+          exchangeRate: item.exchange_rate,
+          date: item.date, // 최신 날짜 저장
+        }
       }
     })
-    exchangeRate.value = response.data.exchange_rate || 0
-    console.log('Fetched exchange rate:', exchangeRate.value)
+
+    // 필터링된 최신 데이터 정렬
+    currencies.value = Object.values(latestData)
+      .sort((a, b) => priorityOrder.indexOf(a.code) - priorityOrder.indexOf(b.code))
+
+    // 기본 선택된 외화 설정
+    if (currencies.value.length > 0) {
+      selectedCurrency.value = currencies.value[0].code
+    }
   } catch (error) {
     console.error('환율 데이터를 가져오는 중 오류 발생:', error)
-    exchangeRate.value = 0
   }
 }
 
 // 계산된 결과 포맷
 const formattedResult = computed(() => {
   if (calculatedAmount.value !== null) {
-    // selectedCurrency가 비어있거나 null일 때 기본값 처리
-    const currency = selectedCurrency.value || '외화'
-    return baseCurrency.value === 'foreign'
-      ? `${calculatedAmount.value.toLocaleString()}`
-      : `${calculatedAmount.value.toFixed(2)}`
+    return calculatedAmount.value.toLocaleString(undefined, { minimumFractionDigits: 2 })
   }
   return ''
 })
 
-
 // 계산 함수
-const calculate = async () => {
-  if (!exchangeDate.value || !selectedCurrency.value || !amount.value) {
-    alert('날짜, 외화 종류, 금액을 모두 입력하세요.')
+const calculate = () => {
+  if (!selectedCurrency.value || !amount.value) {
+    alert('외화 종류와 금액을 모두 입력하세요.')
     return
   }
 
-  // 환율 데이터 가져오기
-  await fetchExchangeRate()
+  // 선택된 외화의 환율 찾기
+  const selectedCurrencyData = currencies.value.find((item) => item.code === selectedCurrency.value)
+  if (!selectedCurrencyData) {
+    alert('선택한 외화에 대한 환율을 찾을 수 없습니다.')
+    return
+  }
+
+  exchangeRate.value = selectedCurrencyData.exchangeRate
 
   // 외화기준 또는 원화기준에 따른 계산
   if (baseCurrency.value === 'foreign') {
@@ -110,7 +129,20 @@ const calculate = async () => {
     calculatedAmount.value = parseFloat(amount.value) / exchangeRate.value
   }
 }
+
+// 계산기 초기화 함수
+const resetCalculator = () => {
+  amount.value = ''
+  calculatedAmount.value = null
+}
+
+// baseCurrency 또는 selectedCurrency 변경 시 초기화
+watch([baseCurrency, selectedCurrency], resetCalculator)
+
+// 컴포넌트 로드 시 최신 환율 데이터 가져오기
+onMounted(fetchLatestExchangeRates)
 </script>
+
 
 <style scoped>
 /* 기본 스타일 */

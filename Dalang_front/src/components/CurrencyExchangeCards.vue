@@ -6,8 +6,7 @@
     </h2>
 
     <div v-if="currencies.length" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-      <!-- 그리드 간격 조정: gap-6 -> gap-8 -->
-      <div v-for="(currency, i) in currencies" :key="i"
+      <div v-for="(currency, i) in displayedCurrencies" :key="i"
         class="currency-card bg-white rounded-xl shadow-lg p-6 transform transition-all duration-300 hover:-translate-y-1">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center">
@@ -17,7 +16,7 @@
         </div>
         <div class="text-center">
           <p class="text-3xl font-bold bg-gradient-to-r from-[#115583] to-[#44AAE2] bg-clip-text text-transparent mb-2">
-            {{ currency.exchange_rate.toFixed(2) }}
+            {{ currency.exchange_rate.toFixed(2) }} KRW
           </p>
           <span class="text-sm text-gray-500 font-medium">{{ currency.date }}</span>
         </div>
@@ -33,9 +32,12 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
+// 상태 관리 변수
 const currencies = ref([]) // 최신 데이터만 담을 상태
+const displayedCurrencies = ref([]) // 표시할 데이터
 const API_URL = 'http://127.0.0.1:8000'
 
+// 환율 데이터를 가져오는 함수
 const fetchExchangeRates = async () => {
   try {
     const response = await axios.get(`${API_URL}/exchange_rate/`) // Django API 호출
@@ -53,7 +55,21 @@ const fetchExchangeRates = async () => {
       }
     })
 
-    currencies.value = Object.values(latestData) // 최신 데이터만 상태에 저장
+    // 최신 데이터만 상태에 저장
+    currencies.value = Object.values(latestData)
+
+    // 달러, 유로, 엔화, 위안화 데이터를 필터링
+    const priorityCurrencies = ['USD', 'EUR', 'JPY(100)', 'CNH']
+    displayedCurrencies.value = currencies.value.filter((currency) =>
+      priorityCurrencies.includes(currency.currency_unit)
+    )
+
+    // 우선순위에 따라 정렬
+    displayedCurrencies.value.sort(
+      (a, b) =>
+        priorityCurrencies.indexOf(a.currency_unit) -
+        priorityCurrencies.indexOf(b.currency_unit)
+    )
   } catch (error) {
     console.error('환율 데이터를 가져오는 중 오류 발생:', error)
   }

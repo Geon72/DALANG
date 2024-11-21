@@ -1,5 +1,7 @@
 from django.urls import path
 from .views import (
+    fetch_and_store_deposit_products,
+    fetch_and_store_saving_products,
     DepositProductListView,
     DepositProductDetailView,
     SavingProductListView,
@@ -9,9 +11,9 @@ from .views import (
 
 urlpatterns = [
     # 정기 예금 -> 20241120 2055 DB 저장 완료
-    # path('fetch_and_store_deposit_products/', views.fetch_and_store_deposit_products, name='fetch_and_store_deposit_products'),
+    path('fetch_and_store_deposit_products/', fetch_and_store_deposit_products, name='fetch_and_store_deposit_products'),
     # 적금 -> 20241120 2055 DB 저장 완료
-    # path('fetch_and_store_saving_products/', views.fetch_and_store_saving_products, name='fetch_and_store_saving_products'),
+    path('fetch_and_store_saving_products/', fetch_and_store_saving_products, name='fetch_and_store_saving_products'),
     path('deposit-products/', DepositProductListView.as_view(), name='deposit_product_list'),  # 정기 예금 전체 조회
     path('deposit-products/<int:pk>/', DepositProductDetailView.as_view(), name='deposit_product_detail'),  # 특정 정기 예금 조회
     path('saving-products/', SavingProductListView.as_view(), name='saving_product_list'),  # 적금 전체 조회
