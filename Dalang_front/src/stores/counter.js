@@ -43,14 +43,19 @@ export const useCounterStore = defineStore('counter', () => {
     // Django에서 받는 필드명이 password1과 password2이다
 
     // 구조 분해 할당
-    const { username, password1, password2 } = payload
+    const { 
+      username, password1, password2, age, gender, salary, wealth, 
+      tendency, marital_status, num_of_dependents, employment_status, 
+      credit_score, monthly_expense, investment_experience 
+    } = payload
 
     axios({
       method: 'post',
       url: `${API_URL}/accounts/signup/`,
       data: {
-        // 단축 객체 표현 -> 키와 변수명이 같으면
-        username, password1, password2
+        username, password1, password2, age, gender, salary, wealth, 
+        tendency, marital_status, num_of_dependents, employment_status, 
+        credit_score, monthly_expense, investment_experience
       }
     })
       .then((res) => {
