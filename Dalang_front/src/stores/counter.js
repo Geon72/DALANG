@@ -35,38 +35,6 @@ export const useCounterStore = defineStore('counter', () => {
       })
   }
 
-  // 회원가입 요청 액션
-  const signUp = function (payload) {
-    // const username = payload.username
-    // const password1 = payload.password
-    // const password2 = payload.password2
-    // Django에서 받는 필드명이 password1과 password2이다
-
-    // 구조 분해 할당
-    const { 
-      username, password1, password2, age, gender, salary, wealth, 
-      tendency, marital_status, num_of_dependents, employment_status, 
-      credit_score, monthly_expense, investment_experience 
-    } = payload
-
-    axios({
-      method: 'post',
-      url: `${API_URL}/accounts/signup/`,
-      data: {
-        username, password1, password2, age, gender, salary, wealth, 
-        tendency, marital_status, num_of_dependents, employment_status, 
-        credit_score, monthly_expense, investment_experience
-      }
-    })
-      .then((res) => {
-        console.log(res)
-        console.log('success')
-      })
-      .catch((err) => {
-        console.log(err)
-      })
-  }
-
   // 로그인 요청 액션
   const logIn = function (payload) {
     // 구조 분해 할당
@@ -95,5 +63,5 @@ export const useCounterStore = defineStore('counter', () => {
     console.log('로그아웃 완료') // 디버깅용 로그
   }
 
-  return { count, doubleCount, increment, logOut, articles, API_URL, getArticles, signUp, logIn, token, isLogin }
+  return { count, doubleCount, increment, logOut, articles, API_URL, getArticles, logIn, token, isLogin }
 })

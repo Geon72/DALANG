@@ -8,11 +8,10 @@ import CurrencyExchangeView from '@/views/CurrencyExchangeView.vue'
 import CommunityView from '@/views/CommunityView.vue'
 import PachinkoView from '@/views/PachinkoView.vue';
 import CookieClickerView from '@/views/CookieClickerView.vue';
-import PersonalRecommendationView from '@/views/PersonalRecommendationView copy.vue';
+import RegisterView from '@/views/RegisterView.vue';
 import UserInfomationUpdateView from '@/views/UserInfomationUpdateView.vue';
 
 // 회원가입 연습
-import RegisterView from '@/components/RegisterView.vue'
 
 const routes = [
   {
@@ -57,11 +56,6 @@ const routes = [
     component: HomePageView // 또는 별도의 404 페이지 컴포넌트
   },
   // 회원가입 연습
-  {
-    path: '/register',
-    name: 'Register',
-    component: RegisterView // 또는 별도의 404 페이지 컴포넌트
-  },
   // 파칭코
   {
     path: '/pachinko',
@@ -71,17 +65,17 @@ const routes = [
   {
     path: '/cookieClicker',
     name: 'cookieClicker',
-    component: CookieClickerView, // Pachinko View 등록
+    component: CookieClickerView, 
   },
   {
-    path: '/personal-recommendation',
-    name: 'personalrecommendation',
-    component: PersonalRecommendationView, // Pachinko View 등록
+    path: '/register',
+    name: 'register',
+    component: RegisterView,
   },
   {
     path: '/user/edit',
     name: 'UserInfomationUpdate',
-    component: UserInfomationUpdateView, // Pachinko View 등록
+    component: UserInfomationUpdateView,
   },
 ]
 
