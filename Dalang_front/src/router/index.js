@@ -10,7 +10,7 @@ import PachinkoView from '@/views/PachinkoView.vue';
 import CookieClickerView from '@/views/CookieClickerView.vue';
 import RegisterView from '@/views/RegisterView.vue';
 import UserInfomationUpdateView from '@/views/UserInfomationUpdateView.vue';
-
+import CreatePostView from '@/views/CreatePostView.vue'
 // 회원가입 연습
 
 const routes = [
@@ -76,6 +76,11 @@ const routes = [
     path: '/user/edit',
     name: 'UserInfomationUpdate',
     component: UserInfomationUpdateView,
+  },
+  {
+    path: '/user/createPost',
+    name: 'createPost',
+    component: CreatePostView,
   },
 ]
 

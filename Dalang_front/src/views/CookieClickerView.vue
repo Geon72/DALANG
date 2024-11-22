@@ -59,7 +59,7 @@
     </div>
 
     <transition-group name="float" tag="div" class="fixed inset-0 pointer-events-none">
-      <div v-for="number in floatingNumbers" :key="number.id" class="absolute text-green-400 font-bold text-2xl"
+      <div v-for="number in floatingNumbers" :key="number.id" class="absolute text-green-400 font-bold text-5xl"
         :style="{ left: `${number.x}px`, top: `${number.y}px` }">
         +{{ formatNumber(number.value) }}원
       </div>
@@ -76,51 +76,77 @@ const isWorking = ref(false);
 const floatingNumbers = ref([]);
 let floatingNumberId = 0;
 
+const addFloatingNumber = (value, x, y) => {
+  const id = floatingNumberId++;
+  floatingNumbers.value.push({ id, value, x, y });
+
+  setTimeout(() => {
+    floatingNumbers.value = floatingNumbers.value.filter(n => n.id !== id);
+  }, 500);
+};
+
+const work = () => {
+  assetValue.value += salary.value;
+  isWorking.value = true;
+  const button = document.querySelector('button');
+  if (button) {
+    const rect = button.getBoundingClientRect();
+    addFloatingNumber(salary.value, rect.left + Math.random() * rect.width, rect.top);
+  }
+  setTimeout(() => {
+    isWorking.value = false;
+  }, 100);
+};
+
 const investments = ref({
   savings: {
     name: '저축 계좌',
     description: '안전하지만 낮은 수익률의 투자',
     count: 0,
     return: 0.1,
-    cost: 100,
-    costMultiplier: 10,
+    cost: 10,
+    costIncrease: 5,
   },
   portfolio: {
     name: '투자 포트폴리오',
     description: '높은 수익률이지만 약간의 위험이 있음',
     count: 0,
     return: 1,
-    cost: 1000,
-    costMultiplier: 20,
+    cost: 100,
+    costMultiplier: 1.15,
   },
   realEstate: {
     name: '부동산',
     description: '안정적인 장기 수익',
     count: 0,
     return: 10,
-    cost: 10000,
-    costMultiplier: 40,
+    cost: 1000,
+    costMultiplier: 1.3,
   },
   business: {
     name: '사업 벤처',
     description: '높은 위험, 높은 잠재적 수익',
     count: 0,
     return: 100,
-    cost: 100000,
-    costMultiplier: 100,
+    cost: 10000,
+    costMultiplier: 1.5,
   },
 });
 
 const achievements = ref([
-  { name: '첫 걸음', description: '첫 1,000달러 벌기', unlocked: false, threshold: 1000 },
-  { name: '백만장자', description: '자산 1,000,000달러 달성하기', unlocked: false, threshold: 1000000 },
+  { name: '첫 걸음', description: '첫 100원 벌기', unlocked: false, threshold: 100 },
+  { name: '소액 투자자', description: '자산 1,000원 달성하기', unlocked: false, threshold: 1000 },
+  { name: '중급 투자자', description: '자산 10,000원 달성하기', unlocked: false, threshold: 10000 },
+  { name: '대형 투자자', description: '자산 100,000원 달성하기', unlocked: false, threshold: 100000 },
+  { name: '백만장자', description: '자산 1,000,000원 달성하기', unlocked: false, threshold: 1000000 },
   { name: '다각화된 포트폴리오', description: '모든 종류의 투자 상품 최소 1개씩 보유하기', unlocked: false },
 ]);
 
 const events = [
-  { title: '시장 호황', description: '주식 시장이 호황입니다!', impact: '30초 동안 투자 수익이 2배로 증가합니다' },
-  { title: '경제 불황', description: '경제가 침체기에 접어들었습니다', impact: '30초 동안 투자 수익이 절반으로 감소합니다' },
-  { title: '예상치 못한 지출', description: '예상치 못한 청구서가 도착했습니다', impact: '현재 자산의 10%를 잃습니다' },
+  { title: '시장 호황', description: '주식 시장이 호황입니다!', impact: '30초 동안 투자 수익이 1.5배로 증가합니다' },
+  { title: '경제 불황', description: '경제가 침체기에 접어들었습니다', impact: '30초 동안 투자 수익이 0.75배로 감소합니다' },
+  { title: '예상치 못한 지출', description: '예상치 못한 청구서가 도착했습니다', impact: '현재 자산의 5%를 잃습니다' },
+  { title: '행운의 날', description: '오늘은 운이 좋은 날입니다!', impact: '일회성으로 현재 자산의 10%를 얻습니다' },
 ];
 
 const currentEvent = ref(null);
@@ -131,40 +157,24 @@ const totalPerSecond = computed(() => {
   }, 0);
 });
 
-const work = () => {
-  assetValue.value += salary.value;
-  isWorking.value = true;
-
-  const button = document.querySelector('button');
-  if (button) {
-    const rect = button.getBoundingClientRect();
-    floatingNumbers.value.push({
-      id: floatingNumberId++,
-      value: salary.value,
-      x: rect.left + Math.random() * rect.width,
-      y: rect.top,
-    });
-  }
-
-  setTimeout(() => {
-    floatingNumbers.value = floatingNumbers.value.filter(n => n.id !== floatingNumberId - 1);
-  }, 1000);
-
-  setTimeout(() => {
-    isWorking.value = false;
-  }, 100);
-};
-
 const purchaseInvestment = (id) => {
   const investment = investments.value[id];
   if (assetValue.value >= investment.cost) {
     assetValue.value -= investment.cost;
     investment.count++;
-    investment.cost = Math.floor(investment.cost * investment.costMultiplier);
+    if (investment.costIncrease) {
+      investment.cost += investment.costIncrease;
+    } else if (investment.costMultiplier) {
+      investment.cost = Math.floor(investment.cost * investment.costMultiplier);
+    }
   }
 };
 
 const formatNumber = (num) => {
+  if (num === null || num === undefined || isNaN(num)) {
+    return '0.00';
+  }
+  num = Number(num);
   if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
   if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
   if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
@@ -177,7 +187,7 @@ const checkAchievements = () => {
       if (achievement.threshold && assetValue.value >= achievement.threshold) {
         achievement.unlocked = true;
         alert(`업적 달성: ${achievement.name}`);
-      } else if (achievement.name === '다양한 포트폴리오') {
+      } else if (achievement.name === '다각화된 포트폴리오') {
         const allInvestmentsOwned = Object.values(investments.value).every(investment => investment.count > 0);
         if (allInvestmentsOwned) {
           achievement.unlocked = true;
@@ -193,24 +203,77 @@ const triggerRandomEvent = () => {
     currentEvent.value = events[Math.floor(Math.random() * events.length)];
 
     if (currentEvent.value.title === '시장 호황') {
-      Object.values(investments.value).forEach(investment => investment.return *= 2);
+      Object.values(investments.value).forEach(investment => investment.return *= 1.5);
       setTimeout(() => {
-        Object.values(investments.value).forEach(investment => investment.return /= 2);
+        Object.values(investments.value).forEach(investment => investment.return /= 1.5);
         currentEvent.value = null;
       }, 30000);
     } else if (currentEvent.value.title === '경제 불황') {
-      Object.values(investments.value).forEach(investment => investment.return /= 2);
+      Object.values(investments.value).forEach(investment => investment.return *= 0.75);
       setTimeout(() => {
-        Object.values(investments.value).forEach(investment => investment.return *= 2);
+        Object.values(investments.value).forEach(investment => investment.return /= 0.75);
         currentEvent.value = null;
       }, 30000);
     } else if (currentEvent.value.title === '예상치 못한 지출') {
-      assetValue.value *= 0.9;
+      assetValue.value *= 0.95;
+      setTimeout(() => {
+        currentEvent.value = null;
+      }, 5000);
+    } else if (currentEvent.value.title === '행운의 날') {
+      assetValue.value *= 1.1;
       setTimeout(() => {
         currentEvent.value = null;
       }, 5000);
     }
   }
+};
+
+const resetGame = () => {
+  assetValue.value = 0;
+  salary.value = 10;
+  investments.value = {
+    savings: {
+      name: '저축 계좌',
+      description: '안전하지만 낮은 수익률의 투자',
+      count: 0,
+      return: 1,
+      cost: 100,
+      costIncrease: 50,
+    },
+    portfolio: {
+      name: '투자 포트폴리오',
+      description: '높은 수익률이지만 약간의 위험이 있음',
+      count: 0,
+      return: 10,
+      cost: 1000,
+      costMultiplier: 1.5,
+    },
+    realEstate: {
+      name: '부동산',
+      description: '안정적인 장기 수익',
+      count: 0,
+      return: 100,
+      cost: 10000,
+      costMultiplier: 2,
+    },
+    business: {
+      name: '사업 벤처',
+      description: '높은 위험, 높은 잠재적 수익',
+      count: 0,
+      return: 1000,
+      cost: 100000,
+      costMultiplier: 3,
+    },
+  };
+  achievements.value = [
+    { name: '첫 걸음', description: '첫 1,000월 벌기', unlocked: false, threshold: 1000 },
+    { name: '중급 투자자', description: '자산 10,000원 달성하기', unlocked: false, threshold: 10000 },
+    { name: '대형 투자자', description: '자산 100,000원 달성하기', unlocked: false, threshold: 100000 },
+    { name: '백만장자', description: '자산 1,000,000원 달성하기', unlocked: false, threshold: 1000000 },
+    { name: '다각화된 포트폴리오', description: '모든 종류의 투자 상품 최소 1개씩 보유하기', unlocked: false },
+  ];
+  currentEvent.value = null;
+  localStorage.removeItem('financialFortuneBuilder');
 };
 
 let productionInterval;
@@ -239,40 +302,45 @@ onMounted(() => {
     }));
   }, 10000);
 
-  eventInterval = setInterval(triggerRandomEvent, 60000); // Check for events every minute
+  eventInterval = setInterval(triggerRandomEvent, 60000);
 });
 
-onUnmounted(() => {
-  clearInterval(productionInterval);
-  clearInterval(saveInterval);
-  clearInterval(eventInterval);
+onMounted(() => {
+  resetGame();
+  productionInterval = setInterval(() => {
+    assetValue.value += totalPerSecond.value / 10;
+    checkAchievements();
+  }, 100);
+  saveInterval = setInterval(() => {
+    localStorage.setItem('financialFortuneBuilder', JSON.stringify({
+      assetValue: assetValue.value,
+      investments: investments.value,
+      achievements: achievements.value,
+    }));
+  }, 10000);
+  eventInterval = setInterval(triggerRandomEvent, 60000);
 });
 </script>
 
 <style scoped>
-.float-enter-active {
-  animation: float-up 1s ease-out forwards;
-}
-
+.float-enter-active,
 .float-leave-active {
-  animation: fade-out 0.2s ease-out forwards;
+  transition: all 0.5s ease-out;
 }
 
-@keyframes float-up {
-  0% {
-    transform: translateY(0) scale(1);
-    opacity: 1;
-  }
-
-  100% {
-    transform: translateY(-50px) scale(1.5);
-    opacity: 0;
-  }
+.float-enter-from {
+  opacity: 0;
+  transform: translateY(20px) scale(0.8);
 }
 
-@keyframes fade-out {
-  to {
-    opacity: 0;
-  }
+.float-leave-to {
+  opacity: 0;
+  transform: translateY(-50px) scale(1.2);
+}
+
+.float-enter-to,
+.float-leave-from {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 </style>
