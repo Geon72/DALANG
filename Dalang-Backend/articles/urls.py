@@ -3,17 +3,24 @@ from .views import (
     ArticleListView, ArticleCreateView, ArticleDetailView,
     ArticleUpdateView, ArticleDeleteView, ArticleLikeView,
     CommentCreateView, CommentDetailView, CommentUpdateView,
-    CommentDeleteView, CommentLikeView, CommentListView
+    CommentDeleteView, CommentLikeView, CommentListView,
+    TrendingArticlesView, RecentArticlesView, FeedArticlesView,
+    UserArticlesView, LikedArticlesView
 )
 
 urlpatterns = [
     # 게시글 URL 패턴
     path('', ArticleListView.as_view(), name='article_list'),  # 게시글 목록 -> 요청 METHOD : GET OK
+    path('trending/', TrendingArticlesView.as_view(), name='trending-articles'),
+    path('recent/', RecentArticlesView.as_view(), name='recent-articles'),
+    path('feed/', FeedArticlesView.as_view(), name='feed-articles'),
     path('create/', ArticleCreateView.as_view(), name='article_create'),  # 게시글 생성 -> 요청 METHOD : POST OK
     path('<int:pk>/', ArticleDetailView.as_view(), name='article_detail'),  # 게시글 상세 -> 요청 METHOD : GET OK
     path('<int:pk>/update/', ArticleUpdateView.as_view(), name='article_update'),  # 게시글 수정 -> 요청 METHOD :  PATCH OK / 타 유저의 수정 공격 방어? -> 된다!
     path('<int:pk>/delete/', ArticleDeleteView.as_view(), name='article_delete'),  # 게시글 삭제 -> 요청 METHOD : DELETE / 타 유저의 삭제 공격 방어? -> 된다!
     path('<int:article_pk>/like/', ArticleLikeView.as_view(), name='article_like'),  # 게시글 좋아요 -> 요청 METHOD : POST / 좋아요 버튼 누른 상태라면 좋아요 삭제 & 좋아요 버튼 안 누른 상태라면 좋아요
+    path('user/<int:user_id>/', UserArticlesView.as_view(), name='user-articles'),
+    path('liked/', LikedArticlesView.as_view(), name='liked-articles'),
 
     # 댓글 URL 패턴
     path('<int:article_pk>/comments/', CommentListView.as_view(), name='comment_list'),  # 특정 게시판의 모든 댓글 조회 -> 요청 METHOD : GET OK

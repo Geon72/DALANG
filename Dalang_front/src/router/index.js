@@ -11,6 +11,8 @@ import CookieClickerView from '@/views/CookieClickerView.vue';
 import RegisterView from '@/views/RegisterView.vue';
 import UserInfomationUpdateView from '@/views/UserInfomationUpdateView.vue';
 import CreatePostView from '@/views/CreatePostView.vue'
+import ArticleDetailView from '@/views/ArticleDetailView.vue'
+
 // 회원가입 연습
 
 const routes = [
@@ -25,9 +27,10 @@ const routes = [
     component: FindBankView
   },
   {
-    path: '/profile',
+    path: '/profile/:id?',
     name: 'profile',
-    component: ProfileView
+    component: ProfileView,
+    props: true
   },
   {
     path: '/login',
@@ -81,6 +84,12 @@ const routes = [
     path: '/user/createPost',
     name: 'createPost',
     component: CreatePostView,
+  },
+  {
+    path: '/articles/:id',
+    name: 'ArticleDetail',
+    component: ArticleDetailView, 
+    props: true
   },
 ]
 

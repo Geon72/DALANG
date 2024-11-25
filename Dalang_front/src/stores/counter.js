@@ -9,59 +9,118 @@ export const useCounterStore = defineStore('counter', () => {
     count.value++
   }
 
-  // 로그인 기능
-  const articles = ref([])
-  const API_URL = 'http://127.0.0.1:8000'
+  // 로그인 관련 상태 및 함수
   const token = ref(localStorage.getItem('authToken') || null)
-
   const isLogin = computed(() => !!token.value) // token이 존재하면 true, 없으면 false
+  const userId = ref(localStorage.getItem('userId') || null) // 사용자 ID 상태 추가
+  const API_URL = 'http://127.0.0.1:8000'
 
-  // DRF로 전체 게시글 요청을 보내고 응답을 받아 articles에 저장하는 함수
-  const getArticles = function () {
-    axios({
-      method: 'get',
-      // url: `${API_URL}/api/v1/articles/`,
-      url: `${API_URL}/articles/`,
-      headers: {
-        Authorization: `Token ${token.value}` // 이건 정해진 규칙이다!
-      }
-    })
-      .then((res) => {
-        // console.log(res.data)
-        articles.value = res.data
+  // 게시글 관련 상태 및 함수
+  const articles = ref([])
+  const myPosts = ref([])
+  const likedPosts = ref([])
+
+  // 내가 쓴 글 가져오기
+  const getMyPosts = async (userId) => {
+    try {
+      const response = await axios.get(`${API_URL}/articles/user/${userId}/`, {
+        headers: {
+          Authorization: `Token ${token.value}`
+        }
       })
-      .catch((err) => {
-        console.log(err)
+      myPosts.value = response.data.map(post => ({
+        id: post.id,
+        title: post.title,
+        content: post.content,
+        date: new Date(post.created_at).toLocaleDateString(),
+        likes: post.like_count,
+        comments: post.comment_count
+      }))
+    } catch (error) {
+      console.error('Failed to fetch my posts:', error)
+    }
+  }
+
+  // 내가 좋아요한 글 가져오기
+  const getLikedPosts = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/articles/liked/`, {
+        headers: {
+          Authorization: `Token ${token.value}`
+        }
       })
+      likedPosts.value = response.data.map(post => ({
+        id: post.id,
+        title: post.title,
+        content: post.content,
+        date: new Date(post.created_at).toLocaleDateString(),
+        likes: post.like_count,
+        comments: post.comment_count
+      }))
+    } catch (error) {
+      console.error('Failed to fetch liked posts:', error)
+    }
+  }
+
+  // 전체 게시글 가져오기
+  const getArticles = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/articles/`, {
+        headers: {
+          Authorization: `Token ${token.value}`
+        }
+      })
+      articles.value = response.data
+    } catch (error) {
+      console.error('Failed to fetch articles:', error)
+    }
   }
 
   // 로그인 요청 액션
-  const logIn = function (payload) {
-    // 구조 분해 할당
-    const { username, password } = payload
-
-    axios({
-      method: 'post',
-      url: `${API_URL}/accounts/login/`,
-      data: {
-        // 단축 객체 표현 -> 키와 변수명이 같으면
-        username, password
-      }
-    })
-      .then((res) => {
-        // console.log(res)
-        // console.log('success')
-        token.value = res.data.key
+  const logIn = async (payload) => {
+    try {
+      const { username, password } = payload
+      // 로그인 요청
+      const response = await axios.post(`${API_URL}/accounts/login/`, { username, password })
+      token.value = response.data.key
+      localStorage.setItem('authToken', token.value)
+  
+      // 로그인 성공 후 사용자 정보 요청
+      const userResponse = await axios.get(`${API_URL}/accounts/user/`, {
+        headers: {
+          Authorization: `Token ${token.value}`
+        }
       })
-      .catch((err) => {
-        console.log(err)
-      })
+      userId.value = userResponse.data.id
+      localStorage.setItem('userId', userId.value)
+    } catch (error) {
+      console.error('Login failed:', error)
+    }
   }
+
+  // 로그아웃 액션
   const logOut = () => {
     token.value = null // 토큰 제거
     localStorage.removeItem('authToken') // 로컬 스토리지에서도 제거
+    userId.value = null // 로그아웃 시 사용자 ID 제거
     console.log('로그아웃 완료') // 디버깅용 로그
   }
 
-  return { count, doubleCount, increment, logOut, articles, API_URL, getArticles, logIn, token, isLogin }
+  return {
+    userId,
+    count,
+    doubleCount,
+    increment,
+    logOut,
+    articles,
+    API_URL,
+    getArticles,
+    logIn,
+    token,
+    isLogin,
+    myPosts,
+    likedPosts,
+    getMyPosts,
+    getLikedPosts
+  }
 })

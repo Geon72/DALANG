@@ -14,6 +14,10 @@
         <button class="ml-2 mt-2 md:mt-0">
           <SettingsIcon class="w-6 h-6 text-[#262626]" />
         </button>
+        <router-link to="/user/createPost"
+          class="ml-2 mt-2 md:mt-0 bg-[#115583] hover:bg-[#44AAE2] text-white text-sm font-semibold py-1 px-4 rounded transition duration-150 ease-in-out">
+          글쓰기
+        </router-link>
       </div>
       <div class="flex justify-center md:justify-start mb-4">
         <div class="mr-8"><span class="font-semibold">{{ user.posts.length }}</span> posts</div>
@@ -30,6 +34,7 @@
 
 <script setup>
 import { SettingsIcon } from 'lucide-vue-next'
+import { useRouter } from 'vue-router'
 
 defineProps({
   user: {
@@ -37,4 +42,5 @@ defineProps({
     required: true
   }
 })
+const router = useRouter()
 </script>

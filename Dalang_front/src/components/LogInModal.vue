@@ -97,33 +97,37 @@ const togglePassword = () => {
 
 // 형님!! 여기가 진짜 핵심입니다!! 로그인 처리하는 함수에요!!!
 const handleSubmit = async () => {
-  isLoading.value = true  // 로딩 시작!!
+  isLoading.value = true
   try {
-    // DRF 서버로 로그인 요청 보내기
-    const response = await axios.post(`${API_URL}/accounts/login/`, {
+    // 로그인 요청
+    const loginResponse = await axios.post(`${API_URL}/accounts/login/`, {
       username: id.value,
       password: password.value
     })
+    
+    // 토큰 저장
+    const token = loginResponse.data.key
+    localStorage.setItem('authToken', token)
 
-    // 로그인 성공하면 처리하는 부분
-    console.log('Login successful', response.data)
-    alert('로그인 성공!')
-
-    // 받은 토큰을 로컬 스토리지에 저장!! 이거 중요합니다!!!
-    localStorage.setItem('authToken', response.data.key)
+    // 사용자 정보 요청
+    const userResponse = await axios.get(`${API_URL}/accounts/user/`, {
+      headers: {
+        Authorization: `Token ${token}`
+      }
+    })
+    
+    // 사용자 ID 저장
+    localStorage.setItem('userId', userResponse.data.id)
 
     if (window.opener) {
-      window.opener.location.reload()  // 부모 창 새로고침
+      window.opener.location.reload()
     }
-
-    // 로그인 창(모달) 닫기
     window.close()
   } catch (error) {
-    // 로그인 실패하면 에러 처리
     console.error('Login error', error.response || error)
     alert('로그인 실패! 사용자 이름 또는 비밀번호를 확인해 주세요.')
   } finally {
-    isLoading.value = false  // 로딩 끝!!
+    isLoading.value = false
   }
 }
 

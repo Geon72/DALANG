@@ -93,7 +93,9 @@ import { ref, onMounted} from 'vue';
 import { XCircleIcon } from 'lucide-vue-next';
 import NavigationBar from '@/components/NavigationBar.vue'
 import { useCounterStore } from '@/stores/counter'
+import { useRouter } from 'vue-router' // router import 추가
 
+const router = useRouter() // router 정의
 const post = ref({
   title: '',
   content: '',
@@ -108,12 +110,8 @@ const store = useCounterStore();
 const token = store.token
 
 const submitPost = async () => {
-  
   try {
-    // const token = store.token // Pinia 스토어에서 토큰 가져오기
-    
     if (!token) {
-      // console.log(token)
       throw new Error('Authentication required');
     }
 
@@ -121,7 +119,7 @@ const submitPost = async () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Token ${token}` // 토큰을 Authorization 헤더에 추가
+        'Authorization': `Token ${token}`
       },
       body: JSON.stringify(post.value),
     });
@@ -135,6 +133,7 @@ const submitPost = async () => {
 
     post.value = { title: '', content: '', hashtag1: '', hashtag2: '', hashtag3: '' };
     alert('Post created successfully!');
+    router.push('/community') // 커뮤니티 페이지로 이동
   } catch (error) {
     errorMessage.value = error.message;
   }

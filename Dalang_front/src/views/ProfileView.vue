@@ -1,44 +1,105 @@
 <template>
   <div class="flex-grow bg-white">
     <NavigationBar :navItems="navItems" />
-    <div class="max-w-5xl mx-auto px-4 py-8">
-      <ProfileHeader :user="user" />
-      <ProfilePostGrid :posts="user.posts" />
+    <div v-if="loading" class="max-w-5xl mx-auto px-4 py-8">
+      Loading profile...
+    </div>
+    <div v-if="error" class="max-w-5xl mx-auto px-4 py-8">
+      {{ error }}
+    </div>
+    <div v-if="!loading && !error" class="max-w-5xl mx-auto px-4 py-8">
+      <ProfileHeader :user="userData" />
+      <ProfilePostGrid :myPosts="myPosts" :likedPosts="likedPosts" />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import axios from 'axios'
 import ProfileHeader from '@/components/ProfileHeader.vue'
 import ProfilePostGrid from '@/components/ProfilePostGrid.vue'
 import NavigationBar from '@/components/NavigationBar.vue'
+import { useCounterStore } from '@/stores/counter'
 
-const user = ref({
-  username: 'DALANG_user',
-  fullName: 'DALANG_user',
-  profilePicture: '/placeholder.svg?height=160&width=160',
-  bio: 'Welcome to my DALANG profile! 📸✨ Sharing moments and memories.',
-  followers: 1234,
-  following: 567,
-  posts: [
-    { id: 1, image: 'https://placeholders.dev/?width=300&height=300&text=Post1' },
-    { id: 2, image: 'https://placeholders.dev/?width=300&height=300&text=Post2' },
-    { id: 3, image: 'https://placeholders.dev/?width=300&height=300&text=Post3' },
-    { id: 4, image: 'https://placeholders.dev/?width=300&height=300&text=Post4' },
-    { id: 5, image: 'https://placeholders.dev/?width=300&height=300&text=Post5' },
-    { id: 6, image: 'https://placeholders.dev/?width=300&height=300&text=Post6' },
-    { id: 7, image: 'https://placeholders.dev/?width=300&height=300&text=Post7' },
-    { id: 8, image: 'https://placeholders.dev/?width=300&height=300&text=Post8' },
-    { id: 9, image: 'https://placeholders.dev/?width=300&height=300&text=Post9' },
-  ]
+const route = useRoute()
+const store = useCounterStore()
+const loading = ref(true)
+const error = ref(null)
+
+const userData = ref(null)
+const myPosts = ref([])
+const likedPosts = ref([])
+
+const fetchUserData = async () => {
+  try {
+    const userId = route.params.id || store.userId;
+
+    if (!userId) {
+      throw new Error('User ID is not defined.');
+    }
+
+    // 사용자 정보 가져오기 - URL 수정
+    const userResponse = await axios.get(`http://localhost:8000/accounts/user/`, {
+      headers: {
+        Authorization: `Token ${store.token}`
+      }
+    });
+    userData.value = {
+      ...userResponse.data,
+      profilePicture: `https://picsum.photos/seed/${userId}/400/400`,
+      followers: 0,
+      following: 0,
+      posts: [],
+      fullName: userResponse.data.username,
+      bio: ''
+    };
+
+    // 내가 쓴 글 가져오기
+    const myPostsResponse = await axios.get(`http://localhost:8000/articles/user/${userId}/`, {
+      headers: {
+        Authorization: `Token ${store.token}`
+      }
+    });
+    myPosts.value = myPostsResponse.data.map(post => ({
+      id: post.id,
+      title: post.title,
+      content: post.content,
+      date: new Date(post.created_at).toLocaleDateString(),
+      likes: post.like_count,
+      comments: post.comment_count,
+      image: post.image || `https://picsum.photos/seed/${post.id}/300/300`
+    }));
+
+    // userData 업데이트
+    userData.value.posts = myPosts.value;
+
+    // 내가 좋아요한 글 가져오기
+    const likedPostsResponse = await axios.get(`http://localhost:8000/articles/liked/`, {
+      headers: {
+        Authorization: `Token ${store.token}`
+      }
+    });
+    likedPosts.value = likedPostsResponse.data.map(post => ({
+      id: post.id,
+      title: post.title,
+      content: post.content,
+      date: new Date(post.created_at).toLocaleDateString(),
+      likes: post.like_count,
+      comments: post.comment_count,
+      image: post.image || `https://picsum.photos/seed/${post.id}/300/300`
+    }));
+  } catch (err) {
+    error.value = err.message;
+    console.error('Error:', err);
+  } finally {
+    loading.value = false;
+  }
+};
+onMounted(() => {
+  fetchUserData()
 })
-
-const navItems = [
-  { name: '홈', route: '/' },
-  { name: '예/적금 추천', route: '/recommendations' },
-  { name: '근처 은행', route: '/find-bank' },
-  { name: '환율 계산기', route: '/currency-calculator' },
-  { name: '커뮤니티', route: '/community' },
-]
 </script>
+
+<style scoped></style>

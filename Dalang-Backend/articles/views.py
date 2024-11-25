@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from .models import Article, Comment
 from .serializers import ArticleSerializer, CommentSerializer
+from django.db.models import Count
 
 # 게시글 목록 뷰
 class ArticleListView(generics.ListAPIView):
@@ -53,6 +54,7 @@ class CommentListView(APIView):
     def get(self, request, article_pk):
         comments = Comment.objects.filter(article_id=article_pk)
         serializer = CommentSerializer(comments, many=True)
+        print(serializer)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 # 댓글 생성 뷰
@@ -77,7 +79,37 @@ class CommentCreateView(generics.CreateAPIView):
             author=self.request.user,
             article=article
         )
+# 트렌딩 게시글 뷰
+class TrendingArticlesView(generics.ListAPIView):
+    serializer_class = ArticleSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
+    def get_queryset(self):
+        return Article.objects.annotate(
+            like_count=Count('likes')
+        ).filter(
+            like_count__gte=1  # 좋아요가 1개 이상인 게시글만 필터링
+        ).order_by('-like_count')[:20]  # 좋아요 수 기준 내림차순 정렬, 최대 20개
+        
+
+# 최근 게시글 뷰
+class RecentArticlesView(generics.ListAPIView):
+    serializer_class = ArticleSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        return Article.objects.order_by('-created_at')[:20]
+
+# 피드 게시글 뷰
+class FeedArticlesView(generics.ListAPIView):
+    serializer_class = ArticleSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        followed_users = user.following.all()
+        return Article.objects.filter(author__in=followed_users).order_by('-created_at')[:20]
+    
 # 댓글 상세 뷰
 class CommentDetailView(generics.RetrieveAPIView):
     queryset = Comment.objects.all()
@@ -145,3 +177,18 @@ class CommentLikeView(APIView):
             'liked': liked,
             'like_count': comment.likes.count()
         }, status=status.HTTP_200_OK)
+    
+class UserArticlesView(generics.ListAPIView):
+    serializer_class = ArticleSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user_id = self.kwargs['user_id']
+        return Article.objects.filter(author_id=user_id)
+
+class LikedArticlesView(generics.ListAPIView):
+    serializer_class = ArticleSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Article.objects.filter(likes=self.request.user)

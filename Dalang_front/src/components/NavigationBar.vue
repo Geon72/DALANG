@@ -34,7 +34,10 @@
             </button>
             <div v-if="isProfileMenuOpen"
               class="profile-menu absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
-              <a href="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">내 프로필</a>
+              <router-link :to="{ name: 'profile', params: { id: store.userId } }"
+                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                내 프로필
+              </router-link>
               <a href="/user/edit" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">설정</a>
             </div>
           </div>
@@ -78,10 +81,10 @@ import { SearchIcon, UserIcon, MenuIcon } from 'lucide-vue-next'
 import DALANG_LOGO from '@/assets/DALANG_LOGO.png'
 
 const store = useCounterStore() // Pinia 스토어 사용!!
-const isMenuOpen = ref(false)
-const isProfileMenuOpen = ref(false)
 const showSearch = ref(false)
 const searchInput = ref(null)
+const isMenuOpen = ref(false)
+const isProfileMenuOpen = ref(false)
 
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value

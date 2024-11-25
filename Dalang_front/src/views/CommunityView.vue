@@ -7,15 +7,12 @@
         <h2 class="text-3xl font-bold mb-4">커뮤니티</h2>
         <div class="border-b border-gray-200">
           <nav class="-mb-px flex space-x-8">
-            <a v-for="tab in tabs" 
-               :key="tab.id" 
-               @click.prevent="switchTab(tab.id)" 
-               :class="[
-                 currentTab === tab.id
-                   ? 'border-[#0088CC] text-[#0088CC]'
-                   : 'border-transparent text-gray-500 hover:text-[#0088CC] hover:border-[#0088CC]',
-                 'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ease-in-out cursor-pointer'
-               ]">
+            <a v-for="tab in tabs" :key="tab.id" @click.prevent="switchTab(tab.id)" :class="[
+              currentTab === tab.id
+                ? 'border-[#0088CC] text-[#0088CC]'
+                : 'border-transparent text-gray-500 hover:text-[#0088CC] hover:border-[#0088CC]',
+              'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ease-in-out cursor-pointer'
+            ]">
               {{ tab.name }}
             </a>
           </nav>
@@ -79,7 +76,10 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { PenSquare } from 'lucide-vue-next'
 import CommunityPostCard from '@/components/CommunityPostCard.vue'
 import NavigationBar from '@/components/NavigationBar.vue'
+import axios from 'axios'
+import { useCounterStore } from '@/stores/counter' // 스토어 import
 
+const store = useCounterStore()
 const currentTab = ref('trending')
 const loading = ref(true)
 const posts = ref([])
@@ -126,15 +126,33 @@ const generateDummyPosts = (count, type) => {
   }))
 }
 
-const fetchPosts = async () => {
+const fetchPosts = async (tabId) => {
   loading.value = true
-  await new Promise(resolve => setTimeout(resolve, 1000))
-  posts.value = generateDummyPosts(expandedPostCount)
-  sortPosts()
-  displayedPosts.value = posts.value.slice(0, initialPostCount)
-  isExpanded.value = false
-  loading.value = false
+  try {
+    let endpoint = 'http://localhost:8000/articles/'
+    if (tabId === 'trending') {
+      endpoint += 'trending/'
+    } else if (tabId === 'recent') {
+      endpoint += 'recent/'
+    } else if (tabId === 'feed') {
+      endpoint += 'feed/'
+    }
+    const response = await axios.get(endpoint, {
+      headers: {
+        'Authorization': `Token ${store.token}`
+      }
+    })
+    console.log('Fetched posts:', response.data) // 데이터 로깅
+    posts.value = response.data
+    displayedPosts.value = posts.value.slice(0, initialPostCount)
+    isExpanded.value = false
+  } catch (error) {
+    console.error('Failed to fetch posts:', error)
+  } finally {
+    loading.value = false
+  }
 }
+
 
 const sortPosts = () => {
   if (currentTab.value === 'trending') {
@@ -148,46 +166,38 @@ const sortPosts = () => {
 const switchTab = async (tabId) => {
   currentTab.value = tabId
   currentPage.value = 1
-  loading.value = true
-
-  try {
-    posts.value = generateDummyPosts(20, tabId)
-    sortPosts()
-    displayedPosts.value = posts.value.slice(0, postsPerPage)
-  } catch (error) {
-    console.error('Failed to fetch posts:', error)
-  } finally {
-    loading.value = false
-  }
+  await fetchPosts(tabId)
 }
 
+onMounted(() => {
+  fetchPosts(currentTab.value)
+})
 const loadMorePosts = () => {
   if (isExpanded.value) {
     // 줄이기
     displayedPosts.value = posts.value.slice(0, initialPostCount)
     isExpanded.value = false
-  } else {
+  } else {switchTab 
     // 더보기
     displayedPosts.value = posts.value.slice(0, expandedPostCount)
     isExpanded.value = true
   }
 }
 
-const toggleLike = (postId) => {
-  const post = posts.value.find(p => p.id === postId)
-  if (post) {
-    post.isLiked = !post.isLiked
-    post.likes += post.isLiked ? 1 : -1
+const toggleLike = async (postId) => {
+  try {
+    const response = await axios.post(`/api/articles/${postId}/like/`)
+    const updatedPost = response.data
+    const index = posts.value.findIndex(p => p.id === postId)
+    if (index !== -1) {
+      posts.value[index] = updatedPost
+    }
+  } catch (error) {
+    console.error('Failed to toggle like:', error)
   }
 }
 
-onMounted(() => {
-  fetchPosts()
-})
 
-watch(currentTab, () => {
-  fetchPosts()
-})
 </script>
 
 <style scoped>
