@@ -352,76 +352,75 @@ project-root/
 
 # 241121
 
-/
-DALANG 프로젝트 문제 상황 및 해결 방안
-
- 1. 네비게이션바 로그인 상태 관리 문제
- 문제 상황:
- - 로그인 후 네비게이션바가 즉시 업데이트되지 않음
- - 새로고침 필요
- - 로그인 상태 감지 실패
- 
- 해결 방안:
-```
- const useAuthStore = defineStore('auth', {
-   state: () => ({
-     token: localStorage.getItem('token') || null,
-     user: null
-   }),
- 
-   getters: {
-     isLoggedIn: (state) => !!state.token,
-     currentUser: (state) => state.user
-   },
- 
-   actions: {
-     async login(credentials) {
-       try {
-         const response = await axios.post('/api/login', credentials)
-         this.token = response.data.token
-         localStorage.setItem('token', this.token)
-         await this.fetchUserData()
-       } catch (error) {
-         console.error('Login failed:', error)
-         throw error
-       }
-     },
- 
-     async fetchUserData() {
-       if (!this.token) return
-       try {
-         const response = await axios.get('/api/user', {
-           headers: { Authorization: `Bearer ${this.token}` }
-         })
-         this.user = response.data
-       } catch (error) {
-         console.error('Failed to fetch user data:', error)
-         this.logout()
-       }
-     },
- 
-     logout() {
-       this.token = null
-       this.user = null
-       localStorage.removeItem('token')
-       router.push('/login')
-     }
-   }
- })
-```
- 
- 2. 캐러셀 구현
- - @splidejs/splide 및 @splidejs/vue-splide 패키지 추가
- - 버전: 
-   "@splidejs/splide": "^4.1.4"
-   "@splidejs/vue-splide": "^0.6.12"
- 
- 3. 게임 구현
- - 파칭코 게임
- - 쿠키크래커 게임
- 
- 4. 의존성 관리
- - package-lock.json 업데이트
- - 신규 의존성 추가 및 버전 관리
-
+/**
+ * DALANG 프로젝트 문제 상황 및 해결 방안
+ * 
+ * 1. 네비게이션바 로그인 상태 관리 문제
+ * 
+ * 문제 상황:
+ * - 로그인 후 네비게이션바가 즉시 업데이트되지 않음
+ * - 새로고침 필요
+ * - 로그인 상태 감지 실패
+ * 
+ * 해결 방안:
+ * const useAuthStore = defineStore('auth', {
+ *   state: () => ({
+ *     token: localStorage.getItem('token') || null,
+ *     user: null
+ *   }),
+ * 
+ *   getters: {
+ *     isLoggedIn: (state) => !!state.token,
+ *     currentUser: (state) => state.user
+ *   },
+ * 
+ *   actions: {
+ *     async login(credentials) {
+ *       try {
+ *         const response = await axios.post('/api/login', credentials)
+ *         this.token = response.data.token
+ *         localStorage.setItem('token', this.token)
+ *         await this.fetchUserData()
+ *       } catch (error) {
+ *         console.error('Login failed:', error)
+ *         throw error
+ *       }
+ *     },
+ * 
+ *     async fetchUserData() {
+ *       if (!this.token) return
+ *       try {
+ *         const response = await axios.get('/api/user', {
+ *           headers: { Authorization: `Bearer ${this.token}` }
+ *         })
+ *         this.user = response.data
+ *       } catch (error) {
+ *         console.error('Failed to fetch user data:', error)
+ *         this.logout()
+ *       }
+ *     },
+ * 
+ *     logout() {
+ *       this.token = null
+ *       this.user = null
+ *       localStorage.removeItem('token')
+ *       router.push('/login')
+ *     }
+ *   }
+ * })
+ * 
+ * 2. 캐러셀 구현
+ * - @splidejs/splide 및 @splidejs/vue-splide 패키지 추가
+ * - 버전: 
+ *   "@splidejs/splide": "^4.1.4"
+ *   "@splidejs/vue-splide": "^0.6.12"
+ * 
+ * 3. 게임 구현
+ * - 파칭코 게임
+ * - 쿠키크래커 게임
+ * 
+ * 4. 의존성 관리
+ * - package-lock.json 업데이트
+ * - 신규 의존성 추가 및 버전 관리
+ *
  5. 회원가입 틀 제작. (사실 상품 추천 폼이었는데 합치기로 예정)

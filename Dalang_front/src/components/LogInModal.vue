@@ -87,6 +87,7 @@ const showPassword = ref(false)   // 비밀번호 보이기/숨기기 토글용
 const rememberMe = ref(false)     // "날 기억해줘" 체크박스 상태
 const isLoading = ref(false)      // 로그인 진행 중인지 표시
 const API_URL = 'http://127.0.0.1:8000'  // 백엔드 서버 주소
+// const API_URL = 'http://3.38.209.214:8000'  // 백엔드 서버 주소
 
 const router = useRouter()  // 라우터 설정!! 페이지 이동할 때 쓸거에요!!!
 

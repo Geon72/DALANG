@@ -28,9 +28,9 @@ const getRandomImages = (count) => {
 };
 
 const services = [
-  { name: '예/적금추천', description: '형님에게 딱 맞는 조건의 상품 추천', image: getRandomImages(1), route: '/recommendation' },
-  { name: '근처 은행', description: '돈 인출해야하는데 어딨냐', image: getRandomImages(1), route: '/find-bank' },
-  { name: '환율 계산기', description: '실시간 환율 계산 - 특: 아님', image: getRandomImages(1), route: '/currency-exchange' }
+  { name: '예/적금추천', description: '당신에게 딱 맞는 조건의 상품 추천', image: getRandomImages(1), route: '/recommendation' },
+  { name: '근처 은행', description: '근처에 은행업무 어디서 보지?', image: getRandomImages(1), route: '/find-bank' },
+  { name: '환율 계산기', description: '실시간 환율 계산', image: getRandomImages(1), route: '/currency-exchange' }
 ]
 
 const friends = [

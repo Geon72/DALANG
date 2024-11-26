@@ -1,24 +1,38 @@
 <template>
   <div class="recommendation-view">
-    <!-- <h1>Recommended Deposit Products</h1> -->
-    <div v-if="loading" class="loading">
-      <p>Loading recommendations...</p>
+    <h1 class="main-title">Recommended Deposit Products</h1>
+    <div v-if="isLoading" class="loading-container">
+      <transition name="fade" mode="out-in">
+        <div :key="loadingStep" class="loading-step">
+          <div class="loading-spinner"></div>
+          <p>{{ loadingMessages[loadingStep] }}</p>
+        </div>
+      </transition>
     </div>
     <div v-else-if="error" class="error">
       <p>Error: {{ error }}</p>
     </div>
     <div v-else class="recommendations">
       <div v-if="products.length > 0" class="product-list">
-        <div v-for="product in products" :key="product.id" class="product-card">
-          <h2>{{ product.name }}</h2>
-          <p><strong>Company:</strong> {{ product.company }}</p>
-          <p>
-            <!-- 만기 후 이자율 -->
-            <strong>Max Rate:</strong> {{ product.mtrt_int }}
-          </p>
-          <p>
-            <strong>Special Conditions:</strong> {{ product.special_condition }}
-          </p>
+        <div 
+          v-for="(product, index) in products" 
+          :key="product.id" 
+          class="product-card-container"
+          :style="{ animationDelay: `${index * 0.2}s` }"
+        >
+          <div class="product-card" :class="{ 'is-flipped': product.isFlipped }" @click="flipCard(product)">
+            <div class="product-card-front">
+              <h2>{{ product.name }}</h2>
+              <p><strong>Company:</strong> {{ product.company }}</p>
+              <p><strong>Click to see details</strong></p>
+            </div>
+            <div class="product-card-back">
+              <h2>{{ product.name }}</h2>
+              <p><strong>Company:</strong> {{ product.company }}</p>
+              <p><strong>Max Rate:</strong> {{ product.mtrt_int }}</p>
+              <p><strong>Special Conditions:</strong> {{ product.special_condition }}</p>
+            </div>
+          </div>
         </div>
       </div>
       <div v-else>
@@ -34,13 +48,33 @@ import { ref, onMounted } from "vue";
 export default {
   name: "PersonalDepositRecommendationView",
   setup() {
-    const loading = ref(true);
+    const isLoading = ref(true);
+    const loadingStep = ref(0);
     const error = ref(null);
     const products = ref([]);
 
+    const loadingMessages = [
+      "투자성향을 분석하고 있어요...",
+      "신용점수를 분석하고 있어요...",
+      "연봉을 분석하고 있어요...",
+      "거의 다 왔어요! 당신에게 추천드릴 상품은...!"
+    ];
+
+    const simulateLoading = () => {
+      isLoading.value = true;
+      loadingStep.value = 0;
+
+      const interval = setInterval(() => {
+        loadingStep.value++;
+        if (loadingStep.value >= loadingMessages.length) {
+          clearInterval(interval);
+          fetchRecommendations();
+        }
+      }, 2000); // Change message every 2 seconds
+    };
+
     const fetchRecommendations = async () => {
       try {
-        loading.value = true;
         error.value = null;
 
         const response = await fetch(
@@ -61,32 +95,36 @@ export default {
         }
 
         const data = await response.json();
-        products.value = data.recommended_products;
+        products.value = data.recommended_products.map(product => ({
+          ...product,
+          isFlipped: false
+        }));
+
+        // Simulate a delay before showing results
+        setTimeout(() => {
+          isLoading.value = false;
+        }, 1000);
       } catch (err) {
         error.value = err.message;
-      } finally {
-        loading.value = false;
+        isLoading.value = false;
       }
     };
 
-    const formatCurrency = (value) => {
-      if (!value) return "N/A";
-      return new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(value);
+    const flipCard = (product) => {
+      product.isFlipped = !product.isFlipped;
     };
 
     onMounted(() => {
-      fetchRecommendations();
+      simulateLoading();
     });
 
     return {
-      loading,
+      isLoading,
+      loadingStep,
+      loadingMessages,
       error,
       products,
-      fetchRecommendations,
-      formatCurrency,
+      flipCard,
     };
   },
 };
@@ -99,8 +137,55 @@ export default {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background-color: rgba(0, 0, 0, 0.6); /* 배경 오버레이 */
-  padding: 20px;
+  background-color: #f0f4f8;
+  padding: 40px 20px;
+}
+
+.main-title {
+  font-size: 3rem;
+  color: #00008B;
+  margin-bottom: 40px;
+  text-align: center;
+  font-weight: 700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  animation: fadeInDown 0.8s ease-out;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+}
+
+.loading-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter, .fade-leave-to {
+  opacity: 0;
 }
 
 .loading,
@@ -108,70 +193,114 @@ export default {
   text-align: center;
   margin-top: 20px;
   font-size: 1.2rem;
-  color: var(--text-primary);
+  color: #333;
 }
 
 .product-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 30px;
   justify-content: center;
   width: 100%;
+  max-width: 1200px;
+}
+
+.product-card-container {
+  perspective: 1000px;
+  width: calc(33.33% - 20px);
+  min-width: 300px;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.8s ease-out forwards;
 }
 
 .product-card {
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 20px;
-  background-color: #fff;
-  width: calc(33.33% - 20px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 그림자 추가 */
-  transition: transform 0.3s ease, box-shadow 0.3s ease; /* 애니메이션 추가 */
-  text-align: left;
+  position: relative;
+  width: 100%;
+  height: 250px;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+  cursor: pointer;
 }
 
-.product-card:hover {
-  transform: translateY(-5px); /* 호버 시 위로 살짝 이동 */
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* 호버 시 그림자 강조 */
+.product-card.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.product-card-front,
+.product-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 15px;
+  padding: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  overflow: hidden;
+}
+
+.product-card-back {
+  transform: rotateY(180deg);
+  background-color: #e8f4fd;
 }
 
 .product-card h2 {
-  margin: 0 0 10px;
-  color: var(--primary-color);
-  font-size: 1.5rem;
+  margin: 0 0 15px;
+  color: #2c3e50;
+  font-size: 1.3rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .product-card p {
-  margin: 5px 0;
-  font-size: 1rem;
-  line-height: 1.6;
-  color: var(--text-primary);
+  margin: 8px 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: #34495e;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.no-recommendations {
-  font-size: 1.2rem;
-  color: var(--text-secondary);
-  text-align: center;
+.product-card-front p:last-child {
+  margin-top: auto;
+  font-weight: 500;
+  color: #3498db;
 }
 
-button {
-  margin-top: 10px;
-  padding: 10px 20px;
-  font-size: 1rem;
-  color: #fff;
-  background-color: var(--primary-color);
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-button:hover {
-  background-color: var(--secondary-color);
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-button:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(68, 170, 226, 0.5); /* 포커스 효과 */
+@media (max-width: 768px) {
+  .product-card-container {
+    width: 100%;
+  }
 }
 </style>
+
