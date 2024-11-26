@@ -196,7 +196,7 @@ const loadKakaoMap = () => {
       resolve()
     } else {
       const script = document.createElement('script')
-      script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_MAP_API_KEY}&libraries=services&autoload=false`
+      script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=460cd7cb6c2aafcc52253d90d6f249eb&libraries=services&autoload=false`
       script.async = true
       
       script.onload = () => {

@@ -464,7 +464,7 @@ def recommend_saving_products(request):
     salary = user.salary
     wealth = user.wealth
     tendency = user.tendency  # 투자 성향
-    credit_score = user.credit_score
+    credit_score = user.credit_score # 신용
 
     # 적금 상품 필터링 로직
     saving_products = SavingProduct.objects.all()

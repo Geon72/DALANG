@@ -104,7 +104,7 @@ const handleSubmit = async () => {
       username: id.value,
       password: password.value
     })
-    
+
     // 토큰 저장
     const token = loginResponse.data.key
     localStorage.setItem('authToken', token)
@@ -115,14 +115,18 @@ const handleSubmit = async () => {
         Authorization: `Token ${token}`
       }
     })
-    
+
     // 사용자 ID 저장
     localStorage.setItem('userId', userResponse.data.id)
 
     if (window.opener) {
-      window.opener.location.reload()
+      window.opener.postMessage({ type: 'login_success', route: '/secondary-security' }, '*')
+      alert('로그인이 완료되었습니다.')
+      window.close()
+    } else {
+      alert('로그인이 완료되었습니다.')
+      router.push('/secondary-security')
     }
-    window.close()
   } catch (error) {
     console.error('Login error', error.response || error)
     alert('로그인 실패! 사용자 이름 또는 비밀번호를 확인해 주세요.')
@@ -135,4 +139,5 @@ const handleSubmit = async () => {
 const goToRegister = () => {
   router.push('/register')
 }
+
 </script>

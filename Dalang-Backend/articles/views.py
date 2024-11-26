@@ -59,13 +59,6 @@ class CommentListView(APIView):
 
 # 댓글 생성 뷰
 class CommentCreateView(generics.CreateAPIView):
-    # queryset = Comment.objects.all()
-    # serializer_class = CommentSerializer
-    # permission_classes = [permissions.IsAuthenticated]
-
-    # def perform_create(self, serializer):
-    #     article = get_object_or_404(Article, pk=self.kwargs['article_pk'])
-    #     serializer.save(author=self.request.user, article=article)
 
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
@@ -192,3 +185,11 @@ class LikedArticlesView(generics.ListAPIView):
 
     def get_queryset(self):
         return Article.objects.filter(likes=self.request.user)
+    
+class CommentedArticlesView(generics.ListAPIView):
+    serializer_class = ArticleSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Article.objects.filter(comments__author=user).distinct().order_by('-created_at')

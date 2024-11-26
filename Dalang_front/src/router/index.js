@@ -14,7 +14,8 @@ import CreatePostView from "@/views/CreatePostView.vue";
 import ArticleDetailView from "@/views/ArticleDetailView.vue";
 import PersonalDepositRecommendationView from "@/views/PersonalDepositRecommendationView.vue";
 import PersonalSavingRecommendationView from "@/views/PersonalSavingRecommendationView.vue";
-
+import PachinkoGameView from "@/views/PachinkoGameView.vue";
+import SecondarySecurityView from "@/views/SecondarySecurityView.vue";
 // 회원가입 연습
 
 const routes = [
@@ -102,6 +103,16 @@ const routes = [
     path: "/personal-saving-recommendation",
     name: "PersonalSavingRecommendationView",
     component: PersonalSavingRecommendationView,
+  },
+  {
+    path: "/secondary-security",
+    name: "SecondarySecurityView",
+    component: SecondarySecurityView,
+  },
+  {
+    path: "/pachinkogame",
+    name: "PachinkoGameView",
+    component: PachinkoGameView,
   },
 ];
 

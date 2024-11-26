@@ -18,6 +18,10 @@ import HomePageBannerImage from '@/components/HomePageBannerImage.vue'
 import HomePageServiceSection from '@/components/HomePageServiceSection.vue'
 import HomePageFriendsSection from '@/components/HomePageFriendsSection.vue'
 import HomePageReviewBoard from '@/components/HomePageReviewBoard.vue'
+import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const getRandomImages = (count) => {
   return Array(count).fill().map(() => `https://picsum.photos/200/200?random=${Math.random()}`);
@@ -89,4 +93,20 @@ const addComment = (id, comment) => {
     })
   }
 }
+
+onMounted(() => {
+  window.addEventListener('message', (event) => {
+    if (event.data.type === 'login_success') {
+      router.push(event.data.route).then(() => {
+        // 라우팅이 완료된 후 새로고침 수행
+        setTimeout(() => {
+          window.location.reload()
+        }, 100)
+      })
+    }
+  })
+})
 </script>
+
+<style scoped>
+</style>

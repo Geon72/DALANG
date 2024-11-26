@@ -81,17 +81,15 @@
     </div>
 
 
+    <!-- 검색 버튼 -->
+    <div class="flex justify-center">
+      <button @click="$emit('search')"
+        class="bg-[#0088CC] text-white px-12 py-3 rounded-lg hover:bg-[#006699] transition-colors text-lg font-semibold shadow-md hover:shadow-lg">
+        검색
+      </button>
+    </div>
 
   </div>
-
-  <!-- 검색 버튼 -->
-  <div class="flex justify-center">
-    <button @click="handleSearch"
-      class="bg-[#0088CC] text-white px-12 py-3 rounded-lg hover:bg-[#006699] transition-colors text-lg font-semibold">
-      검색
-    </button>
-  </div>
-  </.div>
 </template>
 
 <script setup>

@@ -5,7 +5,7 @@ from .views import (
     CommentCreateView, CommentDetailView, CommentUpdateView,
     CommentDeleteView, CommentLikeView, CommentListView,
     TrendingArticlesView, RecentArticlesView, FeedArticlesView,
-    UserArticlesView, LikedArticlesView
+    UserArticlesView, LikedArticlesView, CommentedArticlesView
 )
 
 urlpatterns = [
@@ -21,6 +21,7 @@ urlpatterns = [
     path('<int:article_pk>/like/', ArticleLikeView.as_view(), name='article_like'),  # 게시글 좋아요 -> 요청 METHOD : POST / 좋아요 버튼 누른 상태라면 좋아요 삭제 & 좋아요 버튼 안 누른 상태라면 좋아요
     path('user/<int:user_id>/', UserArticlesView.as_view(), name='user-articles'),
     path('liked/', LikedArticlesView.as_view(), name='liked-articles'),
+    path('commented/', CommentedArticlesView.as_view(), name='commented-articles'),
 
     # 댓글 URL 패턴
     path('<int:article_pk>/comments/', CommentListView.as_view(), name='comment_list'),  # 특정 게시판의 모든 댓글 조회 -> 요청 METHOD : GET OK

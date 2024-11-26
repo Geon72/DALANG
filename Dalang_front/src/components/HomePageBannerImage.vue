@@ -75,8 +75,8 @@ const router = useRouter();
 
 // 슬라이드 데이터
 const slides = [
-  { color: "#44AAE2", buttonText: "Click!", title: "쿠키클릭커" },
-  { color: "#E24444", buttonText: "Explore!", title: "DALANG 미니게임" },
+  { color: "#44AAE2", buttonText: "Click!", title: "미니게임 [재산 증식 게임]" },
+  { color: "#E24444", buttonText: "Explore!", title: "미니게임 [DALANG 맞추기]" },
   {
     color: "#44E250",
     buttonText: "Deposit More!",
@@ -103,7 +103,7 @@ const splideOptions = {
 
 // Explore 버튼 클릭 시 새 창 열기
 const openPachinkoView = () => {
-  const newWindow = window.open("/pachinko", "_blank", "width=800,height=600");
+  const newWindow = window.open("/pachinkogame", "_blank", "width=800,height=600");
 };
 const openCookieClickerView = () => {
   const newWindow = window.open(

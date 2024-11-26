@@ -9,7 +9,7 @@
     </div>
     <div v-if="!loading && !error" class="max-w-5xl mx-auto px-4 py-8">
       <ProfileHeader :user="userData" />
-      <ProfilePostGrid :myPosts="myPosts" :likedPosts="likedPosts" />
+      <ProfilePostGrid :myPosts="myPosts" :likedPosts="likedPosts" :commentedPosts="commentedPosts" />
     </div>
   </div>
 </template>
@@ -31,6 +31,8 @@ const error = ref(null)
 const userData = ref(null)
 const myPosts = ref([])
 const likedPosts = ref([])
+const commentedPosts = ref([])
+
 
 const fetchUserData = async () => {
   try {
@@ -90,6 +92,23 @@ const fetchUserData = async () => {
       comments: post.comment_count,
       image: post.image || `https://picsum.photos/seed/${post.id}/300/300`
     }));
+
+    // 내가 댓글 단 글 가져오기
+    const commentedPostsResponse = await axios.get(`http://localhost:8000/articles/commented/`, {
+      headers: {
+        Authorization: `Token ${store.token}`
+      }
+    });
+    commentedPosts.value = commentedPostsResponse.data.map(post => ({
+      id: post.id,
+      title: post.title,
+      content: post.content,
+      date: new Date(post.created_at).toLocaleDateString(),
+      likes: post.like_count,
+      comments: post.comment_count,
+      image: post.image || `https://picsum.photos/seed/${post.id}/300/300`
+    }));
+
   } catch (err) {
     error.value = err.message;
     console.error('Error:', err);
